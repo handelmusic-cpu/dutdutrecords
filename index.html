@@ -209,15 +209,29 @@
 
   <sc-if value="{{ nowPlaying }}" hint-placeholder-val="{{ null }}">
     <div style="position:fixed;bottom:0;left:0;right:0;z-index:70;background:oklch(0.13 0.014 250 / 0.98);backdrop-filter:blur(8px);border-top:1px solid oklch(0.33 0.02 250);padding:12px 24px;display:flex;align-items:center;gap:16px">
-      <div style="width:44px;height:44px;border-radius:6px;background:repeating-linear-gradient(45deg,oklch(0.255 0.018 250) 0 6px,oklch(0.205 0.016 250) 6px 12px);flex-shrink:0"></div>
+      <sc-if value="{{ nowPlaying.cover }}" hint-placeholder-val="{{ null }}">
+        <img src="{{ nowPlaying.cover }}" alt="" style="width:44px;height:44px;border-radius:6px;object-fit:cover;flex-shrink:0">
+      </sc-if>
+      <sc-if value="{{ !nowPlaying.cover }}" hint-placeholder-val="{{ true }}">
+        <div style="width:44px;height:44px;border-radius:6px;background:repeating-linear-gradient(45deg,oklch(0.255 0.018 250) 0 6px,oklch(0.205 0.016 250) 6px 12px);flex-shrink:0"></div>
+      </sc-if>
       <div style="flex:1;min-width:0">
         <div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ nowPlaying.title }}</div>
-        <div style="font-size:12px;color:oklch(0.66 0.02 250)">{{ nowPlaying.artist }} — preview unavailable until audio is uploaded</div>
+        <sc-if value="{{ nowPlaying.audio }}" hint-placeholder-val="{{ null }}">
+          <div style="font-size:12px;color:oklch(0.66 0.02 250);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ nowPlaying.artist }}</div>
+        </sc-if>
+        <sc-if value="{{ !nowPlaying.audio }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:12px;color:oklch(0.66 0.02 250)">{{ nowPlaying.artist }} — preview unavailable until audio is uploaded</div>
+        </sc-if>
       </div>
-      <button onClick="{{ togglePlayback }}" style="width:38px;height:38px;border-radius:50%;background:oklch(0.72 0.15 50);color:oklch(0.15 0.014 250);border:none;cursor:pointer;font-size:13px;flex-shrink:0">{{ playbackIcon }}</button>
+      <sc-if value="{{ nowPlaying.audio }}" hint-placeholder-val="{{ null }}">
+        <button onClick="{{ togglePlayback }}" style="width:38px;height:38px;border-radius:50%;background:oklch(0.72 0.15 50);color:oklch(0.15 0.014 250);border:none;cursor:pointer;font-size:13px;flex-shrink:0">{{ playbackIcon }}</button>
+      </sc-if>
       <button onClick="{{ closePlayer }}" style="background:none;border:none;color:oklch(0.66 0.02 250);cursor:pointer;font-size:18px;flex-shrink:0">×</button>
     </div>
   </sc-if>
+
+  <audio id="dc-audio" preload="none" style="display:none"></audio>
 
   <footer style="border-top:1px solid oklch(0.33 0.02 250);padding:32px;text-align:center;color:oklch(0.66 0.02 250);font-size:13px">
     <div style="display:flex;justify-content:center;gap:20px;margin-bottom:14px;font-weight:600">
@@ -260,21 +274,21 @@ class Component extends DCLogic {
     { id: 'drdjobi', name: 'Dr Djo Bi', tag: 'World / Experimental' },
   ];
   allReleases = [
-    { id: 1, artist: 'Ben Handel', title: "I Have A Dog", url: 'https://distrokid.com/hyperfollow/benhandel/i-have-a-dog', cover: 'assets/web/1.jpg' },
+    { id: 1, artist: 'Ben Handel', title: "I Have A Dog", url: 'https://distrokid.com/hyperfollow/benhandel/i-have-a-dog', cover: 'assets/web/1.jpg', audio: 'assets/audio/i-have-a-dog.mp3' },
     { id: 2, artist: 'Sklermbot', title: 'Standing On The Corner / Tylenol PM', url: 'https://distrokid.com/hyperfollow/sklermbot/standing-on-the-corner--tylenol-pm', cover: 'assets/web/2.jpg' },
-    { id: 3, artist: 'Sklermbot', title: 'Tylenol PM', url: 'https://distrokid.com/hyperfollow/sklermbot/tylenol-pm', cover: 'assets/web/3.jpg' },
-    { id: 4, artist: 'Sklermbot', title: 'Standing On The Corner', url: 'https://distrokid.com/hyperfollow/sklermbot/standing-on-the-corner', cover: 'assets/web/4.jpg' },
+    { id: 3, artist: 'Sklermbot', title: 'Tylenol PM', url: 'https://distrokid.com/hyperfollow/sklermbot/tylenol-pm', cover: 'assets/web/3.jpg', audio: 'assets/audio/tylenol-pm.mp3' },
+    { id: 4, artist: 'Sklermbot', title: 'Standing On The Corner', url: 'https://distrokid.com/hyperfollow/sklermbot/standing-on-the-corner', cover: 'assets/web/4.jpg', audio: 'assets/audio/standing-on-the-corner.mp3' },
     { id: 5, artist: 'Sklermbot', title: 'Drift Away', url: 'https://distrokid.com/hyperfollow/sklermbot/drift-away-3', cover: 'assets/web/5.jpg' },
     { id: 6, artist: 'Quincy Handel', title: "Rubik's Got The Rubric", url: 'https://distrokid.com/hyperfollow/quincyhandel/rubiks-got-the-rubric', cover: 'assets/web/6.jpg' },
     { id: 7, artist: 'Jetson Handel', title: 'Jet Can Jam', url: 'https://distrokid.com/hyperfollow/jetsonhandel/jet-can-jam', cover: 'assets/web/7.jpg' },
     { id: 8, artist: 'Sklermbot', title: 'Drift Under', url: 'https://distrokid.com/hyperfollow/sklermbot/drift-under', cover: 'assets/web/8.jpg' },
     { id: 9, artist: 'Sklermbot', title: 'Drift On', url: 'https://distrokid.com/hyperfollow/sklermbot/drift-on', cover: 'assets/web/9.jpg' },
     { id: 10, artist: 'Sklermbot', title: 'Downtown', url: 'https://distrokid.com/hyperfollow/sklermbot/downtown-2', cover: 'assets/web/10.jpg' },
-    { id: 11, artist: 'Sklermbot', title: 'Just A Second', url: 'https://distrokid.com/hyperfollow/sklermbot/just-a-second', cover: 'assets/web/11.jpg' },
+    { id: 11, artist: 'Sklermbot', title: 'Just A Second', url: 'https://distrokid.com/hyperfollow/sklermbot/just-a-second', cover: 'assets/web/11.jpg', audio: 'assets/audio/just-a-second.mp3' },
     { id: 12, artist: 'Sklermbot', title: 'Click 15 Semiquaver', url: 'https://distrokid.com/hyperfollow/sklermbot/click-15-semiquaver', cover: 'assets/web/12.jpg' },
     { id: 13, artist: 'Sklermbot', title: 'HYPERPOP', url: 'https://distrokid.com/hyperfollow/sklermbot/hyperpop-2', cover: 'assets/web/13.jpg' },
     { id: 14, artist: 'Sklermbot', title: 'Document 21 (Please Save Me)', url: 'https://distrokid.com/hyperfollow/sklermbot/document-21-please-save-me', cover: 'assets/web/14.jpg' },
-    { id: 15, artist: 'Sklermbot', title: 'Bounce and Jump', url: 'https://distrokid.com/hyperfollow/sklermbot/bounce-and-jump', cover: 'assets/web/15.jpg' },
+    { id: 15, artist: 'Sklermbot', title: 'Bounce and Jump', url: 'https://distrokid.com/hyperfollow/sklermbot/bounce-and-jump', cover: 'assets/web/15.jpg', audio: 'assets/audio/bounce-and-jump.mp3' },
     { id: 16, artist: 'Sklermbot', title: 'Nanyo Business', url: 'https://distrokid.com/hyperfollow/sklermbot/nanyo-business', cover: 'assets/web/16.jpg' },
     { id: 17, artist: 'Sklermbot', title: 'Lil Guy', url: 'https://distrokid.com/hyperfollow/sklermbot/lil-guy', cover: 'assets/web/17.jpg' },
     { id: 18, artist: 'Sklermbot', title: 'LIVING', url: 'https://distrokid.com/hyperfollow/sklermbot/living', cover: 'assets/web/18.jpg' },
@@ -324,9 +338,16 @@ class Component extends DCLogic {
       else if (this.state.view === 'ben') this.setState({ view: 'site' });
     };
     window.addEventListener('hashchange', this._onHash);
+
+    this.audioEl = document.getElementById('dc-audio');
+    if (this.audioEl) {
+      this._onEnded = () => this.setState({ isPlaying: false });
+      this.audioEl.addEventListener('ended', this._onEnded);
+    }
   }
   componentWillUnmount() {
     window.removeEventListener('hashchange', this._onHash);
+    if (this.audioEl && this._onEnded) this.audioEl.removeEventListener('ended', this._onEnded);
   }
 
   goToBen = (e) => { if (e) e.preventDefault(); location.hash = 'ben'; this.setState({ view: 'ben' }); };
@@ -334,9 +355,37 @@ class Component extends DCLogic {
   setArtistFilter = (name) => this.setState({ artistFilter: name });
   setStoreCategory = (cat) => this.setState({ storeCategory: cat });
   togglePlay = (id) => this.setState((s) => ({ playingId: s.playingId === id ? null : id }));
-  playTrack = (r) => this.setState({ nowPlaying: r, isPlaying: true });
-  togglePlayback = () => this.setState((s) => ({ isPlaying: !s.isPlaying }));
-  closePlayer = () => this.setState({ nowPlaying: null, isPlaying: false });
+  playTrack = (r) => {
+    if (!r.audio) {
+      if (this.audioEl) this.audioEl.pause();
+      this.setState({ nowPlaying: r, isPlaying: false });
+      return;
+    }
+    if (this.state.nowPlaying && this.state.nowPlaying.id === r.id) {
+      this.togglePlayback();
+      return;
+    }
+    if (this.audioEl) {
+      this.audioEl.src = r.audio;
+      this.audioEl.currentTime = 0;
+      this.audioEl.play().catch(() => {});
+    }
+    this.setState({ nowPlaying: r, isPlaying: true });
+  };
+  togglePlayback = () => {
+    if (!this.audioEl || !this.state.nowPlaying || !this.state.nowPlaying.audio) return;
+    if (this.audioEl.paused) {
+      this.audioEl.play().catch(() => {});
+      this.setState({ isPlaying: true });
+    } else {
+      this.audioEl.pause();
+      this.setState({ isPlaying: false });
+    }
+  };
+  closePlayer = () => {
+    if (this.audioEl) this.audioEl.pause();
+    this.setState({ nowPlaying: null, isPlaying: false });
+  };
   addToCart = (product) => this.setState((s) => ({ cart: [...s.cart, product], cartOpen: true }));
   removeFromCart = (idx) => this.setState((s) => ({ cart: s.cart.filter((_, i) => i !== idx) }));
   toggleCart = () => this.setState((s) => ({ cartOpen: !s.cartOpen }));
