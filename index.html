@@ -1,113 +1,412 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dutdut Records</title>
-    <meta
-      name="description"
-      content="Dutdut Records — home of Sklermbot, Quincy and Jetson Handel, and the music tools we build."
-    />
-    <link rel="canonical" href="https://dutdutrecords.com/" />
-    <meta property="og:title" content="Dutdut Records" />
-    <meta property="og:description" content="Artists and music tools from Dutdut Records." />
-    <meta property="og:url" content="https://dutdutrecords.com/" />
-    <meta property="og:type" content="website" />
-    <link rel="stylesheet" href="/assets/style.css" />
-    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-  </head>
-  <body>
-    <a class="skip" href="#main">Skip to content</a>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<title>DutDut Records</title>
+<meta name="ext-resource-dependency" content="assets/web/1.jpg">
+<meta name="ext-resource-dependency" content="assets/web/2.jpg">
+<meta name="ext-resource-dependency" content="assets/web/3.jpg">
+<meta name="ext-resource-dependency" content="assets/web/4.jpg">
+<meta name="ext-resource-dependency" content="assets/web/5.jpg">
+<meta name="ext-resource-dependency" content="assets/web/6.jpg">
+<meta name="ext-resource-dependency" content="assets/web/7.jpg">
+<meta name="ext-resource-dependency" content="assets/web/8.jpg">
+<meta name="ext-resource-dependency" content="assets/web/9.jpg">
+<meta name="ext-resource-dependency" content="assets/web/10.jpg">
+<meta name="ext-resource-dependency" content="assets/web/11.jpg">
+<meta name="ext-resource-dependency" content="assets/web/12.jpg">
+<meta name="ext-resource-dependency" content="assets/web/13.jpg">
+<meta name="ext-resource-dependency" content="assets/web/14.jpg">
+<meta name="ext-resource-dependency" content="assets/web/15.jpg">
+<meta name="ext-resource-dependency" content="assets/web/16.jpg">
+<meta name="ext-resource-dependency" content="assets/web/17.jpg">
+<meta name="ext-resource-dependency" content="assets/web/18.jpg">
+<meta name="ext-resource-dependency" content="assets/web/19.jpg">
+<meta name="ext-resource-dependency" content="assets/web/20.jpg">
+<meta name="ext-resource-dependency" content="assets/web/21.jpg">
+<meta name="ext-resource-dependency" content="assets/web/22.jpg">
+<meta name="ext-resource-dependency" content="assets/web/23.jpg">
+<meta name="ext-resource-dependency" content="assets/web/24.jpg">
+<meta name="ext-resource-dependency" content="assets/web/25.jpg">
+<meta name="ext-resource-dependency" content="assets/web/26.jpg">
+<meta name="ext-resource-dependency" content="assets/web/27.jpg">
+<meta name="ext-resource-dependency" content="assets/web/28.jpg">
+<meta name="ext-resource-dependency" content="assets/web/29.jpg">
+<meta name="ext-resource-dependency" content="assets/web/30.jpg">
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#221f1d"/><circle cx="50" cy="50" r="26" fill="none" stroke="#e08b4a" stroke-width="4"/><circle cx="50" cy="50" r="5" fill="#e08b4a"/></svg>
+</template>
+</head>
+<body>
+<x-dc>
 
-    <header class="site-head">
-      <div class="wrap">
-        <a class="wordmark" href="/">Dutdut<span>.</span>Records</a>
-        <nav class="top" aria-label="Main">
-          <a href="#roster">Artists</a>
-          <a href="/apps/">Apps</a>
-          <a href="#contact">Contact</a>
-        </nav>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    a { color: oklch(0.72 0.15 50); text-decoration: none; }
+    a:hover { color: oklch(0.8 0.15 50); }
+  </style>
+</helmet>
+
+<div style="font-family:'Work Sans',sans-serif;background:oklch(0.15 0.014 250);color:oklch(0.95 0.01 90);min-height:100vh">
+
+<sc-if value="{{ isSite }}" hint-placeholder-val="{{ true }}">
+<div id="top">
+
+  <nav style="position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:oklch(0.15 0.014 250 / 0.94);backdrop-filter:blur(6px);border-bottom:1px solid oklch(0.33 0.02 250)">
+    <a href="#top" style="display:flex;align-items:center;gap:10px">
+      <img src="assets/web/logo.jpg" alt="DutDut Records" style="height:38px;width:auto;border-radius:4px">
+      <span style="font-family:'Anton',sans-serif;font-size:17px;letter-spacing:0.04em;color:oklch(0.95 0.01 90)">DUT DUT RECORDS</span>
+    </a>
+    <div style="display:flex;align-items:center;gap:26px;font-size:13px;font-weight:600;letter-spacing:0.06em">
+      <a href="#music" style="color:oklch(0.95 0.01 90)">MUSIC</a>
+      <a href="#store" style="color:oklch(0.95 0.01 90)">STORE</a>
+      <a href="#apps" style="color:oklch(0.95 0.01 90)">APPS</a>
+      <a href="#about" style="color:oklch(0.95 0.01 90)">ABOUT</a>
+      <a href="#ben" onClick="{{ goToBen }}" style="color:oklch(0.72 0.15 50)">BEN HANDEL →</a>
+      <button onClick="{{ toggleCart }}" style="background:oklch(0.255 0.018 250);border:1px solid oklch(0.33 0.02 250);color:oklch(0.95 0.01 90);padding:8px 14px;border-radius:4px;cursor:pointer;font-family:'Work Sans',sans-serif;font-size:13px;font-weight:600">CART ({{ cartCount }})</button>
+    </div>
+  </nav>
+
+  <sc-if value="{{ cartOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;top:64px;right:32px;z-index:60;width:300px;background:oklch(0.205 0.016 250);border:1px solid oklch(0.33 0.02 250);border-radius:8px;padding:18px;box-shadow:0 12px 32px rgba(0,0,0,0.5)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-weight:700;font-size:14px">YOUR CART</span>
+        <button onClick="{{ toggleCart }}" style="background:none;border:none;color:oklch(0.66 0.02 250);cursor:pointer;font-size:16px">×</button>
       </div>
-    </header>
-
-    <main id="main">
-      <div class="wrap">
-        <div class="hero">
-          <p class="eyebrow">Independent label</p>
-          <h1>Dutdut Records</h1>
-          <!-- EDIT: one or two sentences about the label. -->
-          <p>Records, releases and music software, made and released independently.</p>
+      <sc-if value="{{ cartItems.length }}" hint-placeholder-val="{{ 0 }}">
+        <sc-for list="{{ cartItems }}" as="item" hint-placeholder-count="0">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid oklch(0.33 0.02 250);font-size:13px">
+            <span>{{ item.name }}</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="color:oklch(0.66 0.02 250)">{{ item.formattedPrice }}</span>
+              <button onClick="{{ item.onRemove }}" style="background:none;border:none;color:oklch(0.66 0.02 250);cursor:pointer;font-size:13px">remove</button>
+            </div>
+          </div>
+        </sc-for>
+        <div style="display:flex;justify-content:space-between;padding-top:12px;font-weight:700;font-size:14px">
+          <span>Subtotal</span><span>{{ cartSubtotal }}</span>
         </div>
+        <button style="width:100%;margin-top:12px;padding:10px;background:oklch(0.72 0.15 50);color:oklch(0.15 0.014 250);border:none;border-radius:4px;font-weight:700;cursor:pointer">CHECKOUT (mockup)</button>
+      </sc-if>
+      <sc-if value="{{ !cartItems.length }}" hint-placeholder-val="{{ true }}">
+        <div style="color:oklch(0.66 0.02 250);font-size:13px;padding:8px 0">Cart is empty.</div>
+      </sc-if>
+    </div>
+  </sc-if>
 
-        <section id="roster">
-          <h2>Artists</h2>
-          <ul class="cards">
-            <li>
-              <a class="card" href="/artists/sklermbot/">
-                <span class="mark" aria-hidden="true">S</span>
-                <h3>Sklermbot</h3>
-                <!-- EDIT: one line about Sklermbot. -->
-                <p>Releases, listening links and news.</p>
-                <span class="go">Open →</span>
-              </a>
-            </li>
-            <li>
-              <a class="card" href="/artists/quincy/">
-                <span class="mark b" aria-hidden="true">Q</span>
-                <h3>Quincy</h3>
-                <!-- EDIT: one line about Quincy. -->
-                <p>Releases, listening links and news.</p>
-                <span class="go">Open →</span>
-              </a>
-            </li>
-            <li>
-              <a class="card" href="/artists/jetson-handel/">
-                <span class="mark c" aria-hidden="true">J</span>
-                <h3>Jetson Handel</h3>
-                <!-- EDIT: one line about Jetson Handel. -->
-                <p>Releases, listening links and news.</p>
-                <span class="go">Open →</span>
-              </a>
-            </li>
-          </ul>
-        </section>
+  <section style="padding:110px 32px 90px;max-width:1100px;margin:0 auto;text-align:center">
+    <div style="font-family:'Anton',sans-serif;font-size:clamp(40px,7vw,84px);line-height:1.02;letter-spacing:0.01em;margin-bottom:20px">DUT DUT<br>RECORDS</div>
+    <p style="max-width:560px;margin:0 auto 32px;color:oklch(0.66 0.02 250);font-size:18px;line-height:1.5">Independent label run by Ben Handel. Four artists, one catalog — electronic, experimental, comedic, and roots rock.</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <a href="#music" style="background:oklch(0.72 0.15 50);color:oklch(0.15 0.014 250);padding:12px 26px;border-radius:4px;font-weight:700;font-size:14px;letter-spacing:0.04em">LISTEN</a>
+      <a href="#store" style="background:transparent;border:1px solid oklch(0.33 0.02 250);color:oklch(0.95 0.01 90);padding:12px 26px;border-radius:4px;font-weight:700;font-size:14px;letter-spacing:0.04em">SHOP MERCH</a>
+    </div>
+    <div style="max-width:320px;margin:28px auto 0">
+      <iframe scrolling="no" style="border:0;width:100%;height:50px" src="https://bandcamp.com/band_follow_button_deluxe/2814636652"></iframe>
+    </div>
+  </section>
 
-        <section id="apps">
-          <h2>Apps</h2>
-          <p class="note">
-            Music software built here, free to use in a browser.
-            <a href="/apps/">See all apps →</a>
-          </p>
-          <ul class="cards">
-            <li>
-              <a class="card" href="https://handelmusic-cpu.github.io/Mobile-Notation/">
-                <h3>MōdScore</h3>
-                <p>
-                  Write and hear notation on a phone — offline-capable, installable, with playback,
-                  transpose and MusicXML export.
-                </p>
-                <span class="go">Launch →</span>
-              </a>
-            </li>
-          </ul>
-        </section>
+  <section style="padding:0 32px 90px;max-width:1100px;margin:0 auto">
+    <div style="font-family:'Anton',sans-serif;font-size:15px;letter-spacing:0.08em;color:oklch(0.66 0.02 250);margin-bottom:24px">ROSTER</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+      <sc-for list="{{ artists }}" as="artist" hint-placeholder-count="4">
+        <div style="background:oklch(0.205 0.016 250);border:1px solid oklch(0.33 0.02 250);border-radius:8px;padding:20px">
+          <div style="font-family:'Anton',sans-serif;font-size:20px;margin-bottom:6px">{{ artist.name }}</div>
+          <div style="font-size:13px;color:oklch(0.72 0.15 50)">{{ artist.tag }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
 
-        <section id="contact">
-          <h2>Contact</h2>
-          <!-- EDIT: swap in the address you want on the open web. -->
-          <p class="note">
-            Bookings, licensing and press:
-            <a href="mailto:hello@dutdutrecords.com">hello@dutdutrecords.com</a>
-          </p>
-        </section>
+  <section id="music" style="padding:20px 32px 100px;max-width:1100px;margin:0 auto">
+    <div style="font-family:'Anton',sans-serif;font-size:32px;margin-bottom:22px">DISCOGRAPHY</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px">
+      <sc-for list="{{ artistFilters }}" as="f" hint-placeholder-count="5">
+        <button onClick="{{ f.onClick }}" style="padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;background:oklch(0.255 0.018 250);border:1px solid oklch(0.33 0.02 250);color:oklch(0.95 0.01 90)">{{ f.name }}</button>
+      </sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:20px">
+      <sc-for list="{{ releases }}" as="r" hint-placeholder-count="8">
+        <div style="background:oklch(0.205 0.016 250);border:1px solid oklch(0.33 0.02 250);border-radius:8px;overflow:hidden;display:flex;flex-direction:column">
+          <sc-if value="{{ r.cover }}" hint-placeholder-val="{{ null }}">
+            <img src="{{ r.cover }}" alt="{{ r.title }} cover" style="aspect-ratio:1/1;width:100%;object-fit:cover;display:block">
+          </sc-if>
+          <sc-if value="{{ !r.cover }}" hint-placeholder-val="{{ true }}">
+            <div style="aspect-ratio:1/1;background:repeating-linear-gradient(45deg,oklch(0.255 0.018 250) 0 10px,oklch(0.205 0.016 250) 10px 20px);display:flex;align-items:center;justify-content:center;color:oklch(0.66 0.02 250);font-family:monospace;font-size:11px;letter-spacing:0.05em;text-transform:uppercase">cover art</div>
+          </sc-if>
+          <div style="padding:14px">
+            <div style="font-weight:700;font-size:15px;margin-bottom:2px">{{ r.title }}</div>
+            <div style="font-size:13px;color:oklch(0.66 0.02 250);margin-bottom:12px">{{ r.artist }}</div>
+            <div style="display:flex;gap:8px">
+              <button onClick="{{ r.onListenClick }}" style="flex:1;padding:9px;background:oklch(0.255 0.018 250);border:1px solid oklch(0.33 0.02 250);color:oklch(0.95 0.01 90);border-radius:4px;font-weight:700;font-size:13px;cursor:pointer">▶ PREVIEW</button>
+              <a href="{{ r.url }}" target="_blank" rel="noopener" style="flex:1;display:block;text-align:center;padding:9px;background:oklch(0.72 0.15 50);color:oklch(0.15 0.014 250);border-radius:4px;font-weight:700;font-size:13px">LISTEN</a>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="apps" style="padding:20px 32px 100px;max-width:1100px;margin:0 auto">
+    <div style="font-family:'Anton',sans-serif;font-size:32px;margin-bottom:8px">APPS</div>
+    <p style="color:oklch(0.66 0.02 250);margin:0 0 28px;font-size:15px">Software built by Ben Handel.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px">
+      <sc-for list="{{ apps }}" as="app" hint-placeholder-count="3">
+        <div style="background:oklch(0.205 0.016 250);border:1px solid oklch(0.33 0.02 250);border-radius:8px;padding:22px">
+          <div style="width:44px;height:44px;border-radius:10px;background:repeating-linear-gradient(45deg,oklch(0.255 0.018 250) 0 6px,oklch(0.205 0.016 250) 6px 12px);margin-bottom:14px"></div>
+          <div style="font-weight:700;font-size:16px;margin-bottom:4px">{{ app.name }}</div>
+          <div style="font-size:13px;color:oklch(0.66 0.02 250);margin-bottom:14px">{{ app.desc }}</div>
+          <a href="{{ app.url }}" style="font-size:13px;font-weight:700;color:oklch(0.72 0.15 50)">VIEW APP →</a>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="store" style="padding:20px 32px 100px;max-width:1100px;margin:0 auto">
+    <div style="font-family:'Anton',sans-serif;font-size:32px;margin-bottom:22px">STORE</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px">
+      <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="3">
+        <button onClick="{{ cat.onClick }}" style="padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;background:oklch(0.255 0.018 250);border:1px solid oklch(0.33 0.02 250);color:oklch(0.95 0.01 90)">{{ cat.name }}</button>
+      </sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px">
+      <sc-for list="{{ products }}" as="p" hint-placeholder-count="6">
+        <div style="background:oklch(0.205 0.016 250);border:1px solid oklch(0.33 0.02 250);border-radius:8px;overflow:hidden;display:flex;flex-direction:column">
+          <div style="aspect-ratio:1/1;background:repeating-linear-gradient(45deg,oklch(0.255 0.018 250) 0 10px,oklch(0.205 0.016 250) 10px 20px);display:flex;align-items:center;justify-content:center;color:oklch(0.66 0.02 250);font-family:monospace;font-size:11px;letter-spacing:0.05em;text-transform:uppercase">product photo</div>
+          <div style="padding:14px">
+            <div style="font-weight:700;font-size:15px;margin-bottom:4px">{{ p.name }}</div>
+            <div style="font-size:14px;color:oklch(0.66 0.02 250);margin-bottom:12px">{{ p.formattedPrice }}</div>
+            <button onClick="{{ p.onAdd }}" style="width:100%;padding:9px;background:oklch(0.72 0.15 50);color:oklch(0.15 0.014 250);border:none;border-radius:4px;font-weight:700;font-size:13px;cursor:pointer">ADD TO CART</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="about" style="padding:20px 32px 100px;max-width:760px;margin:0 auto">
+    <div style="font-family:'Anton',sans-serif;font-size:32px;margin-bottom:22px">ABOUT</div>
+    <p style="color:oklch(0.85 0.01 90);font-size:16px;line-height:1.7;margin-bottom:32px">DutDut Records is an independent label based in beautiful Southern Indiana, run by Ben Handel. The core roster spans four artists — Sklermbot, Ben Handel, Quincy Handel, and Jetson Handel — with dozens of releases so far, all out digitally, and room for more artists as the label grows. The sound ranges across electronic and experimental production, comedic songs, roots rock, and whatever else fits.</p>
+
+    <div style="font-family:'Anton',sans-serif;font-size:16px;letter-spacing:0.06em;color:oklch(0.66 0.02 250);margin-bottom:16px">CONTACT</div>
+    <sc-if value="{{ !contactSent }}" hint-placeholder-val="{{ true }}">
+      <form onSubmit="{{ submitContact }}" style="display:flex;flex-direction:column;gap:12px">
+        <input type="text" placeholder="Name" style="padding:12px;background:oklch(0.205 0.016 250);border:1px solid oklch(0.33 0.02 250);border-radius:4px;color:oklch(0.95 0.01 90);font-family:'Work Sans',sans-serif">
+        <input type="email" placeholder="Email" style="padding:12px;background:oklch(0.205 0.016 250);border:1px solid oklch(0.33 0.02 250);border-radius:4px;color:oklch(0.95 0.01 90);font-family:'Work Sans',sans-serif">
+        <textarea placeholder="Message" rows="4" style="padding:12px;background:oklch(0.205 0.016 250);border:1px solid oklch(0.33 0.02 250);border-radius:4px;color:oklch(0.95 0.01 90);font-family:'Work Sans',sans-serif;resize:vertical"></textarea>
+        <button type="submit" style="align-self:flex-start;padding:12px 26px;background:oklch(0.72 0.15 50);color:oklch(0.15 0.014 250);border:none;border-radius:4px;font-weight:700;cursor:pointer">SEND</button>
+      </form>
+    </sc-if>
+    <sc-if value="{{ contactSent }}" hint-placeholder-val="{{ false }}">
+      <div style="color:oklch(0.72 0.15 50);font-size:15px">Thanks — message received.</div>
+    </sc-if>
+  </section>
+
+  <sc-if value="{{ nowPlaying }}" hint-placeholder-val="{{ null }}">
+    <div style="position:fixed;bottom:0;left:0;right:0;z-index:70;background:oklch(0.13 0.014 250 / 0.98);backdrop-filter:blur(8px);border-top:1px solid oklch(0.33 0.02 250);padding:12px 24px;display:flex;align-items:center;gap:16px">
+      <div style="width:44px;height:44px;border-radius:6px;background:repeating-linear-gradient(45deg,oklch(0.255 0.018 250) 0 6px,oklch(0.205 0.016 250) 6px 12px);flex-shrink:0"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ nowPlaying.title }}</div>
+        <div style="font-size:12px;color:oklch(0.66 0.02 250)">{{ nowPlaying.artist }} — preview unavailable until audio is uploaded</div>
       </div>
-    </main>
+      <button onClick="{{ togglePlayback }}" style="width:38px;height:38px;border-radius:50%;background:oklch(0.72 0.15 50);color:oklch(0.15 0.014 250);border:none;cursor:pointer;font-size:13px;flex-shrink:0">{{ playbackIcon }}</button>
+      <button onClick="{{ closePlayer }}" style="background:none;border:none;color:oklch(0.66 0.02 250);cursor:pointer;font-size:18px;flex-shrink:0">×</button>
+    </div>
+  </sc-if>
 
-    <footer class="site-foot">
-      <div class="wrap">
-        <span>© 2026 Dutdut Records</span>
-        <span>dutdutrecords.com</span>
-      </div>
-    </footer>
-  </body>
+  <footer style="border-top:1px solid oklch(0.33 0.02 250);padding:32px;text-align:center;color:oklch(0.66 0.02 250);font-size:13px">
+    <div style="display:flex;justify-content:center;gap:20px;margin-bottom:14px;font-weight:600">
+      <a href="https://instagram.com/handelmusic" style="color:oklch(0.95 0.01 90)">INSTAGRAM</a>
+      <a href="https://facebook.com/benjamin.handel" style="color:oklch(0.95 0.01 90)">FACEBOOK</a>
+      <a href="https://youtube.com/@Sklermbot" style="color:oklch(0.95 0.01 90)">YOUTUBE</a>
+      <a href="mailto:handelmusic@gmail.com" style="color:oklch(0.95 0.01 90)">EMAIL</a>
+    </div>
+    © 2026 Dut Dut Records
+  </footer>
+
+</div>
+</sc-if>
+
+<sc-if value="{{ isBen }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center">
+    <div style="width:120px;height:120px;border-radius:50%;background:repeating-linear-gradient(45deg,oklch(0.255 0.018 250) 0 8px,oklch(0.205 0.016 250) 8px 16px);margin-bottom:24px;display:flex;align-items:center;justify-content:center;color:oklch(0.66 0.02 250);font-family:monospace;font-size:10px">photo</div>
+    <div style="font-family:'Anton',sans-serif;font-size:38px;margin-bottom:8px">BEN HANDEL</div>
+    <p style="color:oklch(0.66 0.02 250);font-size:16px;max-width:380px;margin:0 0 32px">Musician and app developer. Founder of Dut Dut Records.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:280px">
+      <a href="#music" onClick="{{ goToSite }}" style="padding:12px;border:1px solid oklch(0.33 0.02 250);border-radius:4px;color:oklch(0.95 0.01 90);font-weight:600;font-size:14px">MY MUSIC</a>
+      <a href="#apps" onClick="{{ goToSite }}" style="padding:12px;border:1px solid oklch(0.33 0.02 250);border-radius:4px;color:oklch(0.95 0.01 90);font-weight:600;font-size:14px">MY APPS</a>
+      <a href="#store" onClick="{{ goToSite }}" style="padding:12px;border:1px solid oklch(0.33 0.02 250);border-radius:4px;color:oklch(0.95 0.01 90);font-weight:600;font-size:14px">MERCH STORE</a>
+      <a href="#" style="padding:12px;border:1px solid oklch(0.33 0.02 250);border-radius:4px;color:oklch(0.95 0.01 90);font-weight:600;font-size:14px">CONTACT</a>
+    </div>
+    <a href="#top" onClick="{{ goToSite }}" style="margin-top:36px;font-size:13px;color:oklch(0.66 0.02 250)">← Back to Dut Dut Records</a>
+  </div>
+</sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  artists = [
+    { id: 'sklermbot', name: 'Sklermbot', tag: 'Electronic / Experimental' },
+    { id: 'ben', name: 'Ben Handel', tag: 'Electronic / Comedic' },
+    { id: 'quincy', name: 'Quincy Handel', tag: 'Roots Rock' },
+    { id: 'jetson', name: 'Jetson Handel', tag: 'Electronic / Experimental' },
+    { id: 'drdjobi', name: 'Dr Djo Bi', tag: 'World / Experimental' },
+  ];
+  allReleases = [
+    { id: 1, artist: 'Ben Handel', title: "I Have A Dog", url: 'https://distrokid.com/hyperfollow/benhandel/i-have-a-dog', cover: 'assets/web/1.jpg' },
+    { id: 2, artist: 'Sklermbot', title: 'Standing On The Corner / Tylenol PM', url: 'https://distrokid.com/hyperfollow/sklermbot/standing-on-the-corner--tylenol-pm', cover: 'assets/web/2.jpg' },
+    { id: 3, artist: 'Sklermbot', title: 'Tylenol PM', url: 'https://distrokid.com/hyperfollow/sklermbot/tylenol-pm', cover: 'assets/web/3.jpg' },
+    { id: 4, artist: 'Sklermbot', title: 'Standing On The Corner', url: 'https://distrokid.com/hyperfollow/sklermbot/standing-on-the-corner', cover: 'assets/web/4.jpg' },
+    { id: 5, artist: 'Sklermbot', title: 'Drift Away', url: 'https://distrokid.com/hyperfollow/sklermbot/drift-away-3', cover: 'assets/web/5.jpg' },
+    { id: 6, artist: 'Quincy Handel', title: "Rubik's Got The Rubric", url: 'https://distrokid.com/hyperfollow/quincyhandel/rubiks-got-the-rubric', cover: 'assets/web/6.jpg' },
+    { id: 7, artist: 'Jetson Handel', title: 'Jet Can Jam', url: 'https://distrokid.com/hyperfollow/jetsonhandel/jet-can-jam', cover: 'assets/web/7.jpg' },
+    { id: 8, artist: 'Sklermbot', title: 'Drift Under', url: 'https://distrokid.com/hyperfollow/sklermbot/drift-under', cover: 'assets/web/8.jpg' },
+    { id: 9, artist: 'Sklermbot', title: 'Drift On', url: 'https://distrokid.com/hyperfollow/sklermbot/drift-on', cover: 'assets/web/9.jpg' },
+    { id: 10, artist: 'Sklermbot', title: 'Downtown', url: 'https://distrokid.com/hyperfollow/sklermbot/downtown-2', cover: 'assets/web/10.jpg' },
+    { id: 11, artist: 'Sklermbot', title: 'Just A Second', url: 'https://distrokid.com/hyperfollow/sklermbot/just-a-second', cover: 'assets/web/11.jpg' },
+    { id: 12, artist: 'Sklermbot', title: 'Click 15 Semiquaver', url: 'https://distrokid.com/hyperfollow/sklermbot/click-15-semiquaver', cover: 'assets/web/12.jpg' },
+    { id: 13, artist: 'Sklermbot', title: 'HYPERPOP', url: 'https://distrokid.com/hyperfollow/sklermbot/hyperpop-2', cover: 'assets/web/13.jpg' },
+    { id: 14, artist: 'Sklermbot', title: 'Document 21 (Please Save Me)', url: 'https://distrokid.com/hyperfollow/sklermbot/document-21-please-save-me', cover: 'assets/web/14.jpg' },
+    { id: 15, artist: 'Sklermbot', title: 'Bounce and Jump', url: 'https://distrokid.com/hyperfollow/sklermbot/bounce-and-jump', cover: 'assets/web/15.jpg' },
+    { id: 16, artist: 'Sklermbot', title: 'Nanyo Business', url: 'https://distrokid.com/hyperfollow/sklermbot/nanyo-business', cover: 'assets/web/16.jpg' },
+    { id: 17, artist: 'Sklermbot', title: 'Lil Guy', url: 'https://distrokid.com/hyperfollow/sklermbot/lil-guy', cover: 'assets/web/17.jpg' },
+    { id: 18, artist: 'Sklermbot', title: 'LIVING', url: 'https://distrokid.com/hyperfollow/sklermbot/living', cover: 'assets/web/18.jpg' },
+    { id: 19, artist: 'Sklermbot', title: 'Walk in the Woods', url: 'https://distrokid.com/hyperfollow/sklermbot/walk-in-the-woods-2', cover: 'assets/web/19.jpg' },
+    { id: 20, artist: 'Sklermbot', title: 'Low PH', url: 'https://distrokid.com/hyperfollow/sklermbot/low-ph', cover: 'assets/web/20.jpg' },
+    { id: 21, artist: 'Sklermbot', title: 'Candlelit', url: 'https://distrokid.com/hyperfollow/sklermbot/candlelit-2', cover: 'assets/web/21.jpg' },
+    { id: 22, artist: 'Sklermbot', title: 'Dogface (feat. Dusty Pockets)', url: 'https://distrokid.com/hyperfollow/sklermbot/dogface-feat-dusty-pockets', cover: 'assets/web/22.jpg' },
+    { id: 23, artist: 'Sklermbot', title: 'The Tension Builds', url: 'https://distrokid.com/hyperfollow/sklermbot/the-tension-builds-2', cover: 'assets/web/23.jpg' },
+    { id: 24, artist: 'Sklermbot', title: 'Sleep + Please', url: 'https://distrokid.com/hyperfollow/sklermbot/sleep--please', cover: 'assets/web/24.jpg' },
+    { id: 25, artist: 'Sklermbot', title: "(I Didn't Forget) To Put This Out", url: 'https://distrokid.com/hyperfollow/sklermbot/i-didnt-forget-to-put-this-out', cover: 'assets/web/25.jpg' },
+    { id: 26, artist: 'Sklermbot', title: 'Viral Jazz Dub (feat. Jefferson St. Parade Band) [Angry Dubie Mix]', url: 'https://distrokid.com/hyperfollow/sklermbot/viral-jazz-dub-feat-jefferson-st-parade-band-angry-dubie-mix', cover: 'assets/web/26.jpg' },
+    { id: 27, artist: 'Sklermbot', title: 'GoShi PongPing', url: 'https://distrokid.com/hyperfollow/sklermbot/goshi-pongping-2', cover: 'assets/web/27.jpg' },
+    { id: 28, artist: 'Sklermbot', title: 'Computers R Cool', url: 'https://distrokid.com/hyperfollow/sklermbot/computers-r-cool-3', cover: 'assets/web/28.jpg' },
+    { id: 29, artist: 'Sklermbot', title: 'Hammer 3000', url: 'https://distrokid.com/hyperfollow/sklermbot/hammer-3000', cover: 'assets/web/29.jpg' },
+    { id: 30, artist: 'Dr Djo Bi', title: 'Topalon', url: '#', cover: 'assets/web/30.jpg' },
+  ];
+  apps = [
+    { id: 'a1', name: 'ModScore', desc: 'Music notation', url: 'https://modscore.vercel.app' },
+    { id: 'a2', name: 'ModRiff', desc: 'Music godmode: songwriting, accompaniment, song builder, practice tool, sound design & more', url: 'https://modriff.vercel.app' },
+    { id: 'a3', name: 'App Name', desc: 'iOS app', url: '#' },
+  ];
+  allProducts = [
+    { id: 'p1', name: 'Vinyl LP', category: 'Vinyl & Prints', price: 28 },
+    { id: 'p2', name: 'Art Print', category: 'Vinyl & Prints', price: 18 },
+    { id: 'p3', name: 'T-Shirt', category: 'Apparel', price: 26 },
+    { id: 'p4', name: 'Hoodie', category: 'Apparel', price: 48 },
+    { id: 'p5', name: 'CD', category: 'Media', price: 12 },
+    { id: 'p6', name: 'Sticker Pack', category: 'Media', price: 6 },
+  ];
+  categoryList = ['Vinyl & Prints', 'Apparel', 'Media'];
+
+  state = {
+    view: (typeof location !== 'undefined' && location.hash === '#ben') ? 'ben' : 'site',
+    artistFilter: 'All',
+    storeCategory: 'Vinyl & Prints',
+    playingId: null,
+    cart: [],
+    cartOpen: false,
+    contactSent: false,
+    nowPlaying: null,
+    isPlaying: false,
+  };
+
+  componentDidMount() {
+    this._onHash = () => {
+      if (location.hash === '#ben') this.setState({ view: 'ben' });
+      else if (this.state.view === 'ben') this.setState({ view: 'site' });
+    };
+    window.addEventListener('hashchange', this._onHash);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('hashchange', this._onHash);
+  }
+
+  goToBen = (e) => { if (e) e.preventDefault(); location.hash = 'ben'; this.setState({ view: 'ben' }); };
+  goToSite = (e) => { if (e) e.preventDefault(); location.hash = e && e.currentTarget ? e.currentTarget.getAttribute('href') : ''; this.setState({ view: 'site' }); };
+  setArtistFilter = (name) => this.setState({ artistFilter: name });
+  setStoreCategory = (cat) => this.setState({ storeCategory: cat });
+  togglePlay = (id) => this.setState((s) => ({ playingId: s.playingId === id ? null : id }));
+  playTrack = (r) => this.setState({ nowPlaying: r, isPlaying: true });
+  togglePlayback = () => this.setState((s) => ({ isPlaying: !s.isPlaying }));
+  closePlayer = () => this.setState({ nowPlaying: null, isPlaying: false });
+  addToCart = (product) => this.setState((s) => ({ cart: [...s.cart, product], cartOpen: true }));
+  removeFromCart = (idx) => this.setState((s) => ({ cart: s.cart.filter((_, i) => i !== idx) }));
+  toggleCart = () => this.setState((s) => ({ cartOpen: !s.cartOpen }));
+  submitContact = (e) => { e.preventDefault(); this.setState({ contactSent: true }); };
+
+  renderVals() {
+    const { view, artistFilter, storeCategory, playingId, cart, cartOpen, contactSent } = this.state;
+
+    const artistNames = ['All', ...this.artists.map((a) => a.name)];
+    const artistFilters = artistNames.map((name) => ({
+      name,
+      active: name === artistFilter,
+      onClick: () => this.setArtistFilter(name),
+    }));
+
+    const releases = this.allReleases
+      .filter((r) => artistFilter === 'All' || r.artist === artistFilter)
+      .map((r) => ({ ...r, onListenClick: () => this.playTrack(r) }));
+
+    const categories = this.categoryList.map((c) => ({
+      name: c,
+      active: c === storeCategory,
+      onClick: () => this.setStoreCategory(c),
+    }));
+
+    const products = this.allProducts
+      .filter((p) => p.category === storeCategory)
+      .map((p) => ({
+        ...p,
+        formattedPrice: '$' + p.price,
+        onAdd: () => this.addToCart(p),
+      }));
+
+    const cartCount = cart.length;
+    const cartSubtotal = '$' + cart.reduce((sum, p) => sum + p.price, 0);
+    const cartItems = cart.map((p, i) => ({
+      ...p,
+      idx: i,
+      formattedPrice: '$' + p.price,
+      onRemove: () => this.removeFromCart(i),
+    }));
+
+    return {
+      isSite: view === 'site',
+      isBen: view === 'ben',
+      artists: this.artists,
+      artistFilters,
+      releases,
+      apps: this.apps,
+      categories,
+      products,
+      cartCount,
+      cartOpen,
+      cartItems,
+      cartSubtotal,
+      contactSent,
+      nowPlaying: this.state.nowPlaying,
+      isPlaying: this.state.isPlaying,
+      playbackIcon: this.state.isPlaying ? '❙❙' : '▶',
+      goToBen: this.goToBen,
+      goToSite: this.goToSite,
+      togglePlay: this.togglePlay,
+      togglePlayback: this.togglePlayback,
+      closePlayer: this.closePlayer,
+      addToCart: this.addToCart,
+      toggleCart: this.toggleCart,
+      submitContact: this.submitContact,
+    };
+  }
+}
+</script>
+</body>
 </html>
