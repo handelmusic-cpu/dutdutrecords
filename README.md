@@ -7,15 +7,18 @@ Plain static files served by GitHub Pages. No framework, no CDN, no web fonts fr
 other companies (Anybody is self-hosted, OFL). The one third-party embed is the
 Bandcamp follow button in About.
 
+The apps themselves (mõdRïff, mõdScore, Music Playground) live together on modriff.com;
+the apps page here lists them, and `/apps/modscore/` and `/apps/music-playground/` only
+forward there (they were hosted here briefly).
+
 ```
 build/data.mjs        everything the site says: artists, releases, apps, social links
 build/site.mjs        writes the HTML pages from data.mjs (node build/site.mjs)
-build/sync-apps.sh    copies the hosted web apps in from their own repositories
 index.html            generated: home
 artists/<slug>/       generated: one page per artist
 apps/index.html       generated: the apps page
-apps/modscore/        copied from the Mobile-Notation repo; do not edit here
-apps/music-playground/ copied from the General-Music repo; do not edit here
+apps/modscore/, apps/music-playground/  forwarding pages to modriff.com (+ a sw.js that
+                      retires the service worker the old copies installed)
 404.html, sitemap.xml generated
 assets/site.css       the one stylesheet
 assets/site.js        catalog filter and preview player (pages work without it)
@@ -30,14 +33,6 @@ CNAME                 the custom domain: leave it in place
 Change `build/data.mjs`, run `node build/site.mjs`, commit the regenerated pages.
 A new release: add the cover as `assets/web/<n>.jpg` (700x700), add a line at the top
 of `releases`; add `audio` only if the full track is in `assets/audio/`.
-
-## The hosted apps
-
-`build/sync-apps.sh` copies mõdScore and Music Playground from their repositories
-(checked out next to this one) into `apps/`, with only the files they need at runtime,
-and records the source commit in `apps/<slug>/.source`. Re-run it after a change to
-either app and commit the result. Both apps use relative URLs and service workers
-scoped to their own folder, so they work at any path.
 
 ## Publishing
 

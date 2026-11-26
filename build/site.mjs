@@ -208,7 +208,7 @@ const appsPage = ['apps/index.html', page({
   body: `
 <section class="band first" aria-labelledby="h-apps">
   <h1 id="h-apps" class="page-h">Apps</h1>
-  <p class="section-lede">Music software by Ben Handel. mõdScore and Music Playground run in your browser, right on this site, and keep working offline once opened.</p>
+  <p class="section-lede">Music software by Ben Handel: the mõd apps. All three run free in your browser on modriff.com and keep your work on your device; mõdRïff is also on iPhone, iPad and Mac.</p>
   ${appList()}
 </section>
 `,
@@ -233,7 +233,7 @@ for (const [p, html] of files) {
   writeFileSync(join(root, p), html);
 }
 
-const urls = ['/', '/apps/', ...artists.map((a) => `/artists/${a.slug}/`), '/apps/modscore/', '/apps/music-playground/'];
+const urls = ['/', '/apps/', ...artists.map((a) => `/artists/${a.slug}/`)];
 writeFileSync(join(root, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map((u) => `  <url><loc>${SITE}${u}</loc></url>`).join('\n')}

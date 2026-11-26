@@ -78,8 +78,9 @@ export const releases = [
   { artist: 'Dr Djo Bi', title: 'Topalon', url: null, cover: 30 },
 ];
 
-// `href` is where "Open" goes. `mark` is the name as the brand sets it: the second word in italic. Apps hosted on this site live under /apps/<slug>/,
-// copied in by `build/sync-apps.sh` from their own repositories.
+// `href` is where "Open" goes; `mark` is the name as the brand sets it (second word italic).
+// The web apps live together on modriff.com (the mõd suite); dutdutrecords.com/apps/<slug>/
+// only forwards there.
 export const apps = [
   {
     slug: 'modriff', name: 'mõdRïff', mark: 'mõd<i>Rïff</i>', kind: 'iPhone, iPad and Mac',
@@ -91,14 +92,14 @@ export const apps = [
   {
     slug: 'modscore', name: 'mõdScore', mark: 'mõd<i>Score</i>', kind: 'Web app',
     desc: 'Write music notation on your phone. Tap notes onto the staff, hear them back, and keep your scores on the device.',
-    href: '/apps/modscore/', cta: 'Open mõdScore',
-    icon: '/apps/modscore/icon-192.png',
+    href: 'https://modriff.com/score/', cta: 'Open mõdScore',
+    icon: '/assets/apps/modscore.png',
   },
   {
     slug: 'music-playground', name: 'Music Playground', kind: 'Web app for classrooms',
     desc: 'Games and tools for elementary music class: a song and game library, rhythm building, the staff, clef drawing and steady beat. Made for iPads, Chromebooks and the projector.',
-    href: '/apps/music-playground/', cta: 'Open Music Playground',
-    icon: '/apps/music-playground/icons/icon-192.png',
+    href: 'https://modriff.com/playground/', cta: 'Open Music Playground',
+    icon: '/assets/apps/music-playground.png',
   },
 ];
 
