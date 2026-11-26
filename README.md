@@ -1,64 +1,44 @@
 # dutdutrecords.com
 
-The Dutdut Records website: a single-page site with the roster, discography,
-apps, merch store (mockup) and about/contact sections, plus a hidden
-`#ben` page for Ben Handel.
+The Dut Dut Records website: label home (roster, catalog with a preview player, apps,
+about), a page per artist, the apps page, and the web apps themselves under `/apps/`.
 
-`index.html` is exported from the label's design project and rendered client-side
-by `support.js`, which loads React, ReactDOM and Babel from unpkg, and the
-Anton/Work Sans fonts from Google Fonts. There's no build step, but it does
-need an internet connection to render. Re-export `index.html` from the design
-project after edits rather than hand-editing it — the release list, apps,
-products and roster all live in the `<script data-dc-script>` block at the
-bottom of that file.
+Plain static files served by GitHub Pages. No framework, no CDN, no web fonts from
+other companies (Anybody is self-hosted, OFL). The one third-party embed is the
+Bandcamp follow button in About.
 
 ```
-index.html            the whole site (markup + data)
-support.js             the runtime index.html depends on — keep next to it
-assets/web/            album covers + logo (web-optimized JPEGs)
-assets/style.css       unused, left over from an earlier version
-assets/favicon.svg     unused, left over from an earlier version
-404.html                served by GitHub Pages for unknown URLs
-CNAME                   the custom domain
-robots.txt, sitemap.xml for search engines
+build/data.mjs        everything the site says: artists, releases, apps, social links
+build/site.mjs        writes the HTML pages from data.mjs (node build/site.mjs)
+build/sync-apps.sh    copies the hosted web apps in from their own repositories
+index.html            generated: home
+artists/<slug>/       generated: one page per artist
+apps/index.html       generated: the apps page
+apps/modscore/        copied from the Mobile-Notation repo; do not edit here
+apps/music-playground/ copied from the General-Music repo; do not edit here
+404.html, sitemap.xml generated
+assets/site.css       the one stylesheet
+assets/site.js        catalog filter and preview player (pages work without it)
+assets/web/           cover art (700x700 JPEG) and the logo
+assets/audio/         full tracks for the preview player
+assets/fonts/         Anybody variable font + licence
+CNAME                 the custom domain: leave it in place
 ```
 
 ## Editing
 
-Releases, apps, products and roster entries are plain JS arrays near the
-bottom of `index.html` (inside `class Component extends DCLogic`) — add,
-remove or edit entries there directly, or re-export from the design project.
+Change `build/data.mjs`, run `node build/site.mjs`, commit the regenerated pages.
+A new release: add the cover as `assets/web/<n>.jpg` (700x700), add a line at the top
+of `releases`; add `audio` only if the full track is in `assets/audio/`.
+
+## The hosted apps
+
+`build/sync-apps.sh` copies mõdScore and Music Playground from their repositories
+(checked out next to this one) into `apps/`, with only the files they need at runtime,
+and records the source commit in `apps/<slug>/.source`. Re-run it after a change to
+either app and commit the result. Both apps use relative URLs and service workers
+scoped to their own folder, so they work at any path.
 
 ## Publishing
 
-With [Pagesmith](https://github.com/handelmusic-cpu/pagesmith):
-
-```sh
-pagesmith deploy "Dutdut Records"   # or press Deploy in the dashboard
-```
-
-Or straight from git, since this repository is what GitHub Pages serves:
-
-```sh
-git push
-```
-
-The first publish needs GitHub Pages switched on for the repository (Settings →
-Pages → Deploy from a branch → `main` / root). The `CNAME` file here is what
-holds `dutdutrecords.com` to the site; leave it in place.
-
-DNS at your registrar, once:
-
-| Type  | Name | Value                    |
-| ----- | ---- | ------------------------ |
-| A     | @    | 185.199.108.153          |
-| A     | @    | 185.199.109.153          |
-| A     | @    | 185.199.110.153          |
-| A     | @    | 185.199.111.153          |
-| AAAA  | @    | 2606:50c0:8000::153      |
-| AAAA  | @    | 2606:50c0:8001::153      |
-| AAAA  | @    | 2606:50c0:8002::153      |
-| AAAA  | @    | 2606:50c0:8003::153      |
-| CNAME | www  | handelmusic-cpu.github.io |
-
-`pagesmith dns "Dutdut Records"` checks those for you and says what is missing.
+This repository is what GitHub Pages serves: push to `main`.

@@ -1,0 +1,274 @@
+/* Dut Dut Records. Riso-print inks on cool paper; one ink per artist, used wherever that
+   artist appears so the colour means something. Type: Anybody (OFL, self-hosted), whose
+   width axis does the expressive work: very wide for the label name, normal for reading. */
+
+@font-face {
+  font-family: 'Anybody';
+  src: url('/assets/fonts/anybody-latin-standard-normal.woff2') format('woff2-variations');
+  font-weight: 100 900; font-stretch: 50% 150%; font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Anybody';
+  src: url('/assets/fonts/anybody-latin-ext-standard-normal.woff2') format('woff2-variations');
+  font-weight: 100 900; font-stretch: 50% 150%; font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Only the brand names use italic (mõd<i>Score</i>, mõd<i>Rïff</i>), so only Latin is loaded. */
+@font-face {
+  font-family: 'Anybody';
+  src: url('/assets/fonts/anybody-latin-standard-italic.woff2') format('woff2-variations');
+  font-weight: 100 900; font-stretch: 50% 150%; font-style: italic; font-display: swap;
+}
+
+:root {
+  --paper: #EDEEE8;
+  --paper-2: #E2E4DC;
+  --ink-0: #1A1D33;
+  --ink-2: #4A4E63;
+  --line: #C9CCC2;
+  --blue: #2F55E4;
+  --pink: #F0457A;
+  --yellow: #F5B700;
+  --green: #13A67A;
+  --ink: var(--ink-0);
+  --focus: #2F55E4;
+  --wrap: 1180px;
+  --gut: clamp(16px, 4vw, 40px);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #15172A;
+    --paper-2: #1E2136;
+    --ink-0: #ECEDE6;
+    --ink-2: #A9ACBC;
+    --line: #34374F;
+    --blue: #5B7BFF;
+    --focus: #8EA3FF;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 76px; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink-0);
+  font: 400 17px/1.55 'Anybody', ui-sans-serif, system-ui, sans-serif; font-stretch: 100%;
+  overflow-x: hidden;
+}
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+a:hover { text-decoration-color: var(--pink); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { margin: 0; line-height: 1.05; }
+p { margin: 0; }
+ul { list-style: none; margin: 0; padding: 0; }
+button { font: inherit; color: inherit; }
+
+.skip { position: absolute; left: -9999px; top: 8px; background: var(--ink-0); color: var(--paper); padding: 10px 14px; z-index: 100; }
+.skip:focus { left: 8px; }
+
+/* ---------- header ---------- */
+.top {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 12px var(--gut);
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; font-stretch: 125%; font-size: 17px; white-space: nowrap; }
+.mark { width: 28px; height: 28px; border-radius: 50%; border: 4px solid var(--ink-0); position: relative; flex: none; }
+.mark::after { content: ''; position: absolute; inset: 0; margin: auto; width: 6px; height: 6px; border-radius: 50%; background: var(--pink); }
+.top nav { display: flex; gap: 4px; }
+.top nav a { text-decoration: none; font-weight: 600; padding: 10px 12px; min-height: 44px; display: inline-flex; align-items: center; }
+.top nav a:hover, .top nav a[aria-current] { text-decoration: underline; text-decoration-thickness: 3px; text-decoration-color: var(--pink); }
+@media (max-width: 640px) {
+  .brand span:last-child { display: none; }
+  .top nav a { padding: 10px 9px; font-size: 15px; }
+}
+
+/* ---------- shared ---------- */
+.band { max-width: var(--wrap); margin: 0 auto; padding: clamp(56px, 9vw, 104px) var(--gut) 0; }
+.band.first { padding-top: clamp(40px, 7vw, 80px); min-height: 50vh; }
+/* Section heads stay quiet: a rule, a name, and a fact about what follows. The wide face is
+   saved for the label's name and the artists' names. */
+.sec-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 24px; border-top: 3px solid var(--ink-0); padding-top: 12px; margin-bottom: 28px; }
+.sec-head h2 { font-size: clamp(26px, 3.2vw, 34px); font-weight: 800; font-stretch: 112%; }
+.sec-head p { color: var(--ink-2); }
+.page-h { font-size: clamp(40px, 7vw, 76px); font-weight: 900; font-stretch: 130%; letter-spacing: -0.01em; margin-bottom: 20px; }
+.section-lede { max-width: 60ch; color: var(--ink-2); margin: 0 0 32px; font-size: 18px; }
+.lede { font-size: clamp(18px, 2.1vw, 21px); max-width: 46ch; line-height: 1.5; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px;
+  padding: 12px 20px; border-radius: 2px; border: 0;
+  background: var(--ink-0); color: var(--paper); font-weight: 700; text-decoration: none; cursor: pointer;
+}
+.btn:hover { background: var(--blue); color: #fff; }
+.btn:active { transform: translateY(1px); }
+.btn .ico { width: 12px; height: 14px; }
+.text-link { font-weight: 700; display: inline-flex; align-items: center; min-height: 48px; text-decoration: underline; text-decoration-thickness: 2px; }
+.text-link.big { font-size: clamp(18px, 2.2vw, 22px); overflow-wrap: anywhere; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); display: inline-block; flex: none; }
+
+/* ---------- hero ---------- */
+/* The whole catalog, sleeve to sleeve and square-cornered like records in a rack, with
+   the label's name on a paper band laid across its lower edge. */
+.hero { position: relative; }
+.wall { display: grid; grid-template-columns: repeat(10, 1fr); }
+.wall img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+.hero-band {
+  position: relative; max-width: var(--wrap); margin: clamp(-120px, -9vw, -48px) auto 0; padding: 0 var(--gut);
+}
+.hero-band > * { position: relative; }
+.hero-band::before {
+  content: ''; position: absolute; inset: 0 max(0px, calc(var(--gut) - 24px)) -28px; background: var(--paper);
+}
+.hero-name {
+  font-weight: 900; font-stretch: 150%; line-height: .9; letter-spacing: -0.02em;
+  font-size: clamp(52px, 10.5vw, 150px); padding-top: clamp(14px, 2vw, 26px); margin-bottom: 18px;
+}
+/* "Dut Dut" is wide and heavy; "Records" is set narrow so the name reads like its own rhythm. */
+.hero-name .beat { white-space: nowrap; }
+.hero-name .hero-rec { font-stretch: 55%; font-weight: 300; letter-spacing: 0.01em; color: var(--ink-2); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; margin-top: 24px; }
+@media (prefers-reduced-motion: no-preference) {
+  /* One moment of motion: the band slides up over the wall once, on load. */
+  .hero-band { animation: band .7s cubic-bezier(.2, .8, .2, 1) .15s both; }
+}
+@keyframes band { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (max-width: 820px) {
+  .wall { grid-template-columns: repeat(6, 1fr); }
+  .wall img:nth-child(n+19) { display: none; }
+  .hero-name .hero-rec { display: block; }
+}
+
+/* ---------- roster ---------- */
+.roster { }
+.roster-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 24px; align-items: center;
+  padding: 22px 0; border-bottom: 1px solid var(--line);
+}
+.roster-name {
+  font-size: clamp(30px, 5vw, 54px); font-weight: 800; font-stretch: 125%; text-decoration: none; line-height: 1.1;
+  /* An overprinted ink band under the name, like a second riso pass. */
+  background: linear-gradient(transparent 58%, color-mix(in srgb, var(--ink) 70%, transparent) 58%, color-mix(in srgb, var(--ink) 70%, transparent) 90%, transparent 90%);
+  justify-self: start;
+}
+.roster-name:hover { background-color: color-mix(in srgb, var(--ink) 15%, transparent); }
+.roster-meta { color: var(--ink-2); grid-column: 1; }
+.roster-row .links { grid-column: 2; grid-row: 1 / span 2; }
+@media (max-width: 720px) {
+  .roster-row { grid-template-columns: 1fr; }
+  .roster-row .links { grid-column: 1; grid-row: auto; }
+}
+.links { display: flex; flex-wrap: wrap; gap: 0 22px; }
+.links a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; }
+
+/* ---------- catalog ---------- */
+.filters { display: flex; flex-wrap: wrap; gap: 0 22px; margin-bottom: 24px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0;
+  border: 0; border-bottom: 3px solid transparent; background: none; cursor: pointer; font-weight: 600; color: var(--ink-2);
+}
+.chip:hover { color: var(--ink-0); }
+.chip[aria-pressed="true"] { color: var(--ink-0); border-bottom-color: var(--ink); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(200px, 44vw), 1fr)); gap: clamp(16px, 2.5vw, 28px) clamp(12px, 2vw, 22px); }
+.tile[hidden] { display: none; }
+.tile-art { position: relative; margin-bottom: 10px; }
+.tile-art img { background: var(--paper-2); aspect-ratio: 1; width: 100%; object-fit: cover; }
+.tile-title { font-weight: 700; line-height: 1.25; margin-bottom: 2px; overflow-wrap: anywhere; }
+.tile-meta { display: flex; align-items: center; gap: 7px; font-size: 14px; color: var(--ink-2); margin-bottom: 6px; }
+.tile-listen, .tile-soon { font-size: 14px; font-weight: 700; display: inline-flex; min-height: 44px; align-items: center; }
+.tile-soon { color: var(--ink-2); font-weight: 500; }
+.tile-play {
+  position: absolute; left: 0; bottom: 0; width: 52px; height: 52px; border-radius: 0;
+  border: 0; background: var(--ink-0); color: var(--paper); cursor: pointer; display: grid; place-items: center;
+}
+.tile-play:hover { background: var(--blue); color: #fff; }
+/* Play and pause are drawn, not typed: iOS turns the play-arrow character into an emoji. */
+.ico { width: 16px; height: 18px; display: block; background: currentColor; clip-path: polygon(10% 0, 100% 50%, 10% 100%); }
+[data-state="playing"] .ico { clip-path: polygon(0 0, 35% 0, 35% 100%, 0 100%, 0 0, 65% 0, 100% 0, 100% 100%, 65% 100%, 65% 0); }
+.tile-play[data-state="playing"] { background: var(--ink); color: #fff; }
+
+/* ---------- apps ---------- */
+.apps { display: grid; gap: 0; }
+.app { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 20px; padding: 0 0 30px; margin-bottom: 30px; border-bottom: 1px solid var(--line); }
+.app:last-child { border-bottom: 0; margin-bottom: 0; }
+.app-icon { width: 72px; height: 72px; border-radius: 18px; object-fit: cover; background: var(--paper-2); }
+.app h3 { font-size: clamp(20px, 6vw, 26px); font-weight: 800; font-stretch: 125%; }
+.app-kind { color: var(--ink-2); font-size: 15px; margin: 2px 0 8px; }
+.app-body > p:not(.app-kind):not(.app-actions) { max-width: 62ch; }
+.app-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+
+/* ---------- about ---------- */
+.about-cols { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 64px); align-items: start; }
+.about-text { font-size: clamp(19px, 2.2vw, 23px); line-height: 1.5; max-width: 40ch; }
+.contact { border-left: 3px solid var(--pink); padding: 4px 0 4px 22px; display: grid; gap: 10px; justify-items: start; }
+.contact h3 { font-size: 22px; font-weight: 800; font-stretch: 125%; }
+.bc-follow { border: 0; width: 100%; max-width: 320px; height: 50px; margin-top: 8px; }
+@media (max-width: 760px) { .about-cols { grid-template-columns: 1fr; } }
+
+/* ---------- artist page ---------- */
+.artist-hero {
+  max-width: var(--wrap); margin: 0 auto; padding: clamp(32px, 6vw, 72px) var(--gut) 0;
+  display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(24px, 5vw, 64px); align-items: center;
+}
+.artist-cover { width: 100%; aspect-ratio: 1; object-fit: cover; border-bottom: 14px solid var(--ink); }
+.artist-hero > div { container-type: inline-size; min-width: 0; }
+.crumb { margin-bottom: 10px; font-weight: 600; }
+.artist-name {
+  /* Sized to its column, not the window: one long word cannot wrap, and at a fixed size
+     "Sklermbot" ran past the column and was clipped. */
+  font-size: min(112px, 11cqi); font-weight: 900; font-stretch: 150%; line-height: .92; letter-spacing: -0.02em;
+  margin-bottom: 14px;
+}
+.artist-hero .roster-meta { margin-bottom: 18px; }
+.artist-hero .lede { margin-bottom: 26px; }
+.small-h { font-size: 15px; font-weight: 700; margin-bottom: 10px; color: var(--ink-2); }
+.also { margin-top: 22px; }
+@media (max-width: 760px) {
+  .artist-hero { grid-template-columns: 1fr; }
+  .artist-cover { max-width: 320px; }
+}
+
+/* ---------- footer ---------- */
+.foot { margin-top: clamp(72px, 10vw, 128px); background: var(--ink-0); color: var(--paper); padding: 48px var(--gut) calc(48px + env(safe-area-inset-bottom)); }
+.foot-in { max-width: var(--wrap); margin: 0 auto; display: grid; gap: 10px; }
+.foot-name { font-weight: 900; font-stretch: 150%; font-size: clamp(28px, 4vw, 40px); }
+.foot-links { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 10px 0; }
+.foot-links a { display: inline-flex; min-height: 44px; align-items: center; font-weight: 600; }
+.foot .fine { color: color-mix(in srgb, var(--paper) 65%, var(--ink-0)); font-size: 14px; }
+.foot :focus-visible { outline-color: var(--yellow); }
+body.has-player .foot { padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
+
+/* ---------- player ---------- */
+.player {
+  position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 60;
+  max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: 48px minmax(0, 1fr) auto auto; gap: 12px; align-items: center;
+  padding: 10px 12px; border-radius: 4px; background: var(--ink-0); color: var(--paper);
+  box-shadow: 0 12px 40px rgb(0 0 0 / .3);
+}
+.player[hidden] { display: none; }
+.player-art { width: 48px; height: 48px; border-radius: 0; object-fit: cover; }
+.player-title { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.player-artist { font-size: 14px; opacity: .75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.player-toggle { width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--pink); color: #fff; display: grid; place-items: center; cursor: pointer; }
+.player-close { width: 44px; height: 44px; border: 0; background: transparent; color: inherit; cursor: pointer; font-size: 18px; border-radius: 50%; }
+.player-close:hover { background: rgb(255 255 255 / .12); }
+.player-bar { position: absolute; left: 18px; right: 18px; bottom: 4px; height: 3px; border-radius: 3px; background: rgb(255 255 255 / .15); overflow: hidden; }
+.player-bar span { display: block; height: 100%; width: 0; background: var(--pink); }
+.player :focus-visible { outline-color: var(--yellow); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+}
+@media (max-width: 520px) { .hero-name { font-size: 17vw; font-stretch: 118%; } }
+/* Narrower letters rather than a broken word: "Sklermbot" split as "Sklermb / ot" at 390px. */
+@media (max-width: 520px) { .artist-name { font-size: min(64px, 13.5cqi); font-stretch: 115%; } }
+@media (max-width: 360px) { .top { gap: 8px; } .top nav { gap: 0; } .top nav a { padding: 10px 7px; font-size: 14px; } }
+@media (max-width: 420px) { .app { grid-template-columns: 52px minmax(0, 1fr); gap: 14px; } .app-icon { width: 52px; height: 52px; border-radius: 13px; } }
+.app h3 i { font-style: italic; }
