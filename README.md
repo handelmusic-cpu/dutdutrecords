@@ -33,14 +33,11 @@ of `releases`; add `audio` only if the full track is in `assets/audio/`.
 
 ## The hosted apps
 
-`build/sync-apps.sh` copies MōdScore and Music Playground from their repositories
+`build/sync-apps.sh` copies mõdScore and Music Playground from their repositories
 (checked out next to this one) into `apps/`, with only the files they need at runtime,
 and records the source commit in `apps/<slug>/.source`. Re-run it after a change to
 either app and commit the result. Both apps use relative URLs and service workers
 scoped to their own folder, so they work at any path.
-
-Saved data is per domain: songs made in MōdScore on modscore.vercel.app don't appear on
-dutdutrecords.com. Leave the Vercel deployment up so people can export them.
 
 ## Publishing
 

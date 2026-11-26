@@ -30,8 +30,8 @@ fi
 if [ "$want" = all ] || [ "$want" = music-playground ]; then
   sync_app music-playground General-Music \
     index.html manifest.json sw.js css js icons audio dist THIRD-PARTY-NOTICES.md
-  # General-Music bundles its own older copies of MōdScore and mõdRïff under apps/. Here they
-  # are left out and its two links point at the real ones instead: a second MōdScore on this
+  # General-Music bundles its own older copies of mõdScore and mõdRïff under apps/. Here they
+  # are left out and its two links point at the real ones instead: a second mõdScore on this
   # domain would share saved songs (same localStorage keys) with a different version of itself.
   ext="$here/apps/music-playground/js/externalapps.js"
   sed -i.bak -e 's|external: "apps/modscore/index.html"|external: "../modscore/"|' \

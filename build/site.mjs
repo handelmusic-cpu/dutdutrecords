@@ -159,7 +159,7 @@ function appList() {
 ${apps.map((a) => `    <li class="app">
       <img class="app-icon" src="${a.icon}" alt="" width="72" height="72" loading="lazy">
       <div class="app-body">
-        <h3>${esc(a.name)}</h3>
+        <h3>${a.mark || esc(a.name)}</h3>
         <p class="app-kind">${esc(a.kind)}</p>
         <p>${esc(a.desc)}</p>
         <p class="app-actions">${a.href.startsWith('http') ? ext(a.href, esc(a.cta), 'btn') : `<a class="btn" href="${a.href}">${esc(a.cta)}</a>`}${a.extra ? ext(a.extra[1], esc(a.extra[0]), 'text-link') : ''}</p>
@@ -203,12 +203,12 @@ ${mine.map(tile).join('\n')}
 const appsPage = ['apps/index.html', page({
   path: '/apps/',
   title: 'Apps',
-  description: 'Music apps by Ben Handel: mõdRïff, MōdScore and Music Playground.',
+  description: 'Music apps by Ben Handel: mõdRïff, mõdScore and Music Playground.',
   current: 'apps',
   body: `
 <section class="band first" aria-labelledby="h-apps">
   <h1 id="h-apps" class="page-h">Apps</h1>
-  <p class="section-lede">Music software by Ben Handel. MōdScore and Music Playground run in your browser, right on this site, and keep working offline once opened.</p>
+  <p class="section-lede">Music software by Ben Handel. mõdScore and Music Playground run in your browser, right on this site, and keep working offline once opened.</p>
   ${appList()}
 </section>
 `,
