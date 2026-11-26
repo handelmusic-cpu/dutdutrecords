@@ -89,7 +89,8 @@ function artistLinks(a) {
 }
 
 // ---------- Home ----------
-const mosaic = [1, 15, 7, 22, 6, 13, 3, 28, 19].map((n) => `<img src="${cover(n)}" alt="" width="700" height="700">`).join('');
+// The hero is the catalog itself: every sleeve, newest first, like a wall of records in a shop.
+const wall = releases.map((r) => `<img src="${cover(r.cover)}" alt="" width="700" height="700">`).join('');
 
 const home = page({
   path: '/',
@@ -97,19 +98,19 @@ const home = page({
   current: '',
   body: `
 <section class="hero">
-  <div class="hero-text">
-    <h1 class="hero-name"><span>Dut</span> <span>Dut</span> <span class="hero-rec">Records</span></h1>
+  <div class="wall" aria-hidden="true">${wall}</div>
+  <div class="hero-band">
+    <h1 class="hero-name"><span class="beat">Dut Dut</span> <span class="hero-rec">Records</span></h1>
     <p class="lede">An independent label in Southern Indiana. Four artists, ${releases.length} releases, and a few music apps made on the side.</p>
     <div class="actions">
-      <button type="button" class="btn" data-play-latest>Play the latest release</button>
-      <a class="btn ghost" href="#music">Browse the catalog</a>
+      <button type="button" class="btn" data-play-latest><span class="ico" aria-hidden="true"></span>Play the newest song</button>
+      <a class="text-link" href="#music">See all ${releases.length} releases</a>
     </div>
   </div>
-  <div class="hero-mosaic" aria-hidden="true">${mosaic}</div>
 </section>
 
 <section class="band" id="artists" aria-labelledby="h-artists">
-  <h2 id="h-artists">Artists</h2>
+  <div class="sec-head"><h2 id="h-artists">Artists</h2><p>${artists.length} on the roster</p></div>
   <ul class="roster">
 ${artists.map((a) => {
     const n = releases.filter((r) => r.artist === a.name).length;
@@ -123,7 +124,7 @@ ${artists.map((a) => {
 </section>
 
 <section class="band" id="music" aria-labelledby="h-music">
-  <h2 id="h-music">Music</h2>
+  <div class="sec-head"><h2 id="h-music">Music</h2><p>${releases.length} releases, newest first</p></div>
   <div class="filters" role="group" aria-label="Show releases by">
     <button type="button" class="chip" data-filter="all" aria-pressed="true">Everyone</button>
 ${artists.map((a) => `    <button type="button" class="chip" data-filter="${esc(a.name)}" aria-pressed="false" style="--ink:var(--${a.ink})"><span class="dot" aria-hidden="true"></span>${esc(a.name)}</button>`).join('\n')}
@@ -134,19 +135,18 @@ ${releases.map(tile).join('\n')}
 </section>
 
 <section class="band" id="apps" aria-labelledby="h-apps">
-  <h2 id="h-apps">Apps</h2>
-  <p class="section-lede">Music software by Ben Handel. The web apps open right here on dutdutrecords.com.</p>
+  <div class="sec-head"><h2 id="h-apps">Apps</h2><p>Music software by Ben Handel</p></div>
   ${appList()}
 </section>
 
 <section class="band about" id="about" aria-labelledby="h-about">
-  <h2 id="h-about">About</h2>
+  <div class="sec-head"><h2 id="h-about">About</h2></div>
   <div class="about-cols">
     <p class="about-text">Dut Dut Records is run by Ben Handel in Southern Indiana. The roster is a family affair: Sklermbot, Ben Handel, Quincy Handel and Jetson Handel, with room for more as the label grows. Everything is out digitally, from drifting electronic records to comedic songs and roots rock.</p>
     <div class="contact">
       <h3>Get in touch</h3>
       <p>Bookings, licensing, merch, or just to say hello.</p>
-      <a class="btn" href="mailto:${email}">Email the label</a>
+      <a class="text-link big" href="mailto:${email}">${email}</a>
       <iframe class="bc-follow" title="Follow Dut Dut Records on Bandcamp" loading="lazy" scrolling="no" src="https://bandcamp.com/band_follow_button_deluxe/2814636652"></iframe>
     </div>
   </div>
@@ -162,7 +162,7 @@ ${apps.map((a) => `    <li class="app">
         <h3>${esc(a.name)}</h3>
         <p class="app-kind">${esc(a.kind)}</p>
         <p>${esc(a.desc)}</p>
-        <p class="app-actions">${a.href.startsWith('http') ? ext(a.href, esc(a.cta), 'btn small') : `<a class="btn small" href="${a.href}">${esc(a.cta)}</a>`}${a.extra ? ext(a.extra[1], esc(a.extra[0]), 'btn small ghost') : ''}</p>
+        <p class="app-actions">${a.href.startsWith('http') ? ext(a.href, esc(a.cta), 'btn') : `<a class="btn" href="${a.href}">${esc(a.cta)}</a>`}${a.extra ? ext(a.extra[1], esc(a.extra[0]), 'text-link') : ''}</p>
       </div>
     </li>`).join('\n')}
   </ul>`;
@@ -190,7 +190,7 @@ const artistPages = artists.map((a) => {
   </div>
 </section>
 <section class="band" aria-labelledby="h-rel">
-  <h2 id="h-rel">Releases</h2>
+  <div class="sec-head"><h2 id="h-rel">Releases</h2><p>${mine.length} on Dut Dut Records</p></div>
   <ul class="grid">
 ${mine.map(tile).join('\n')}
   </ul>
