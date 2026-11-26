@@ -29,5 +29,14 @@ if [ "$want" = all ] || [ "$want" = modscore ]; then
 fi
 if [ "$want" = all ] || [ "$want" = music-playground ]; then
   sync_app music-playground General-Music \
-    index.html manifest.json sw.js css js icons audio apps dist
+    index.html manifest.json sw.js css js icons audio dist THIRD-PARTY-NOTICES.md
+  # General-Music bundles its own older copies of MōdScore and mõdRïff under apps/. Here they
+  # are left out and its two links point at the real ones instead: a second MōdScore on this
+  # domain would share saved songs (same localStorage keys) with a different version of itself.
+  ext="$here/apps/music-playground/js/externalapps.js"
+  sed -i.bak -e 's|external: "apps/modscore/index.html"|external: "../modscore/"|' \
+             -e 's|external: "apps/modriff/index.html"|external: "https://modriff.com/play/"|' "$ext"
+  rm -f "$ext.bak"
+  grep -q '"../modscore/"' "$ext" && grep -q 'modriff.com/play' "$ext" \
+    || { echo "externalapps.js links not rewritten: check General-Music/js/externalapps.js" >&2; exit 1; }
 fi

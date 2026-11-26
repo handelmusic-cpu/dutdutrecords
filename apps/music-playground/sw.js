@@ -1,0 +1,109 @@
+/* ==========================================================================
+   sw.js — service worker for offline play.
+   Precaches the whole app shell on install so Music Playground keeps working
+   with zero wifi (great for spotty school networks).
+   Every path here is relative ("./…") on purpose: they resolve against this
+   file's own URL, so the app works unchanged at a sub-path such as
+   /apps/music-playground/ and the worker's scope stays that folder. Bump CACHE_NAME on any
+   deploy that changes file contents so old caches are cleared out.
+   ========================================================================== */
+
+var CACHE_NAME = "music-playground-v11";
+
+var PRECACHE_URLS = [
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./css/styles.css",
+  "./js/app.js",
+  "./js/clefs.js",
+  "./js/data.js",
+  "./js/sound.js",
+  "./js/library.js",
+  "./js/beatboxes.js",
+  "./js/staff.js",
+  "./js/clefdraw.js",
+  "./js/steadybeat.js",
+  "./js/majorminor.js",
+  "./js/piano.js",
+  "./js/rhythmcards.js",
+  "./js/ukulele.js",
+  "./js/terms.js",
+  "./js/orchestra.js",
+  "./js/composers.js",
+  "./js/songmaker.js",
+  "./js/beatmaker.js",
+  "./js/bells.js",
+  "./js/quiz.js",
+  "./js/externalapps.js",
+  "./dist/music-playground.html",
+  "./icons/favicon-32.png",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png",
+  "./icons/icon-maskable-192.png",
+  "./icons/icon-maskable-512.png",
+  "./icons/apple-touch-icon.png",
+  "./audio/instruments/violin.mp3",
+  "./audio/instruments/viola.mp3",
+  "./audio/instruments/cello.mp3",
+  "./audio/instruments/double-bass.mp3",
+  "./audio/instruments/flute.mp3",
+  "./audio/instruments/clarinet.mp3",
+  "./audio/instruments/oboe.mp3",
+  "./audio/instruments/bassoon.mp3",
+  "./audio/instruments/saxophone.mp3",
+  "./audio/instruments/trumpet.mp3",
+  "./audio/instruments/french-horn.mp3",
+  "./audio/instruments/trombone.mp3",
+  "./audio/instruments/tuba.mp3",
+  "./audio/instruments/snare-drum.mp3",
+  "./audio/instruments/bass-drum.mp3",
+  "./audio/instruments/cymbals.mp3"
+];
+
+self.addEventListener("install", function (event) {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(function (cache) { return cache.addAll(PRECACHE_URLS); })
+      .then(function () { return self.skipWaiting(); })
+  );
+});
+
+self.addEventListener("activate", function (event) {
+  event.waitUntil(
+    caches.keys().then(function (names) {
+      return Promise.all(
+        names.filter(function (n) { return n !== CACHE_NAME; })
+             .map(function (n) { return caches.delete(n); })
+      );
+    }).then(function () { return self.clients.claim(); })
+  );
+});
+
+self.addEventListener("fetch", function (event) {
+  var req = event.request;
+  if (req.method !== "GET") return;
+
+  var url = new URL(req.url);
+  // Cross-origin requests (only the optional analytics script now — the app
+  // no longer loads web fonts) go straight to the network untouched; caching
+  // them would only serve a stale copy.
+  if (url.origin !== self.location.origin) return;
+
+  // App files: cache-first (instant + offline), refresh the cache in the
+  // background so the next load picks up any update. Page navigations ignore
+  // the query string so a shared "Magic Link" (?song=…) still opens offline.
+  var matchOpts = req.mode === "navigate" ? { ignoreSearch: true } : undefined;
+  event.respondWith(
+    caches.match(req, matchOpts).then(function (cached) {
+      var networkFetch = fetch(req).then(function (res) {
+        if (res && res.ok) {
+          var copy = res.clone();
+          caches.open(CACHE_NAME).then(function (c) { c.put(req, copy); });
+        }
+        return res;
+      }).catch(function () { return cached; });
+      return cached || networkFetch;
+    })
+  );
+});
