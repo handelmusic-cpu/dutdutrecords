@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- viewport-fit=cover lets the layout reach under the notch/home indicator;
+     the env(safe-area-inset-*) padding below keeps content out from under it.
+     maximum-scale/user-scalable are deliberately NOT pinned: this is a
+     notation app, and pinch-zooming the staff to read or place a note is a
+     core need. Buttons carry touch-action:manipulation, so allowing zoom
+     does not reintroduce double-tap-zoom on the controls. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!-- Installable, so "Add to Home Screen" launches it with no browser UI at
+     all. In an ordinary Safari tab the toolbars only retract when the
+     *document* scrolls, and this app's document deliberately never scrolls
+     (html,body are height:100% overflow:hidden so the staff and controls can
+     hold a fixed layout) — so there is no gesture for Safari to react to, and
+     in landscape its tab strip stays put. Installing sidesteps that entirely
+     and gives the whole screen in both orientations. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MōdScore">
+<!-- Matches the panel background of whichever theme is showing; applyTheme()
+     rewrites it once the saved choice is known, these cover first paint. -->
+<meta name="theme-color" content="#12121f" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#eceef6" media="(prefers-color-scheme: light)">
+<meta name="description" content="Write, hear and share music notation on your phone. Works offline once opened, and installs to the home screen.">
+<!-- Share previews. og:image is left out on purpose: crawlers want an
+     absolute URL, and the app must not hard-code the host it is served from. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="MōdScore">
+<meta property="og:description" content="Write, hear and share music notation on your phone.">
+<meta name="twitter:card" content="summary">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>MōdScore</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Crect%20width='100'%20height='100'%20rx='22'%20fill='%2312121f'/%3E%3Ctext%20x='50'%20y='70'%20font-family='Arial,Helvetica,sans-serif'%20font-size='58'%20font-weight='800'%20fill='%23e94560'%20text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+<style>
+/* ═══════════════════════════════════════════════════════
+   DESIGN TOKENS
+   Colours were hardcoded at every use site, which made a second theme
+   impossible and let near-identical greys drift apart. Everything routes
+   through these now, so light mode is a token swap rather than a rewrite.
+   ═══════════════════════════════════════════════════════ */
+:root{
+  color-scheme:dark;
+
+  /* ── Surfaces, back to front ── */
+  --bg:#12121f;        /* page, and the sunken interior of chips/buttons */
+  --sunk:#0e0e1e;      /* chord palette — reads as recessed below the panel */
+  --surf:#16162a;      /* tab bar, note grid */
+  --surf2:#1a1a30;     /* panels */
+  --surf3:#1e1e35;     /* toolbar */
+  --surf4:#20203a;     /* raised cards: tour, record sheet */
+  --ctl:#2a2a40;       /* pills, BPM field */
+  --ctl2:#2a2a44;      /* tour secondary buttons */
+  --border:#2a2a45;
+  --border2:#333;
+  --paper:#f4efe4;     /* the score's page — stays paper in both themes */
+
+  /* ── Text ── muted2/muted3 carry the small uppercase labels, hints and
+     inactive tabs; at #667/#778 they measured 3.0 and 3.9 : 1 on the panels,
+     under the 4.5 small text needs. Raised to clear it. */
+  --text:#e0e4ef; --text2:#dde; --text3:#ccd; --text4:#d5d8e5;
+  --muted:#889; --muted2:#84849c; --muted3:#8a8aa2; --muted4:#aab; --muted5:#99a;
+
+  /* ── Semantic accents ── */
+  --accent:#e94560;    /* primary / selected */
+  --info:#2980b9;      /* the selection colour on the staff */
+  --info-bg:#0d1f35; --info-fg:#5dade2;
+  --ok:#219a53; --ok-bg:#0d2f1f; --ok-fg:#6fcf97;
+  --warn:#c96a12; --danger:#e74c3c; --rec:#c0392b; --rec-fg:#ff8a8a;
+  --gold:#f0c040; --violet:#9b59b6; --green:#22a35c; --sky:#9bd;
+  --dot:#334;          /* inactive part indicator */
+  --rest-btn:#3a3f55;  /* rest key, held apart from the pitch keys */
+
+  /* ── Key hue ──
+     Set by applyKeyHue() from the key's position on the circle of fifths, so
+     the chord palette rotates through the colour wheel as the music moves
+     through keys. 210 is C, and every fifth turns it 30°. */
+  --kh:210;
+  --h-tonic:var(--kh);
+  --h-subdom:calc(var(--kh) + 195);
+  --h-dom:calc(var(--kh) + 150);
+  /* Lightness of the chord buttons, flipped wholesale for light mode. */
+  --ch-bg-l:18%; --ch-7-l:13%; --ch-bd-l:44%; --ch-fg-l:69%;
+}
+
+/* Light mode — for a phone on a music stand, where a dark UI beside a cream
+   score is a glare edge you keep re-adapting to. */
+body.light{
+  color-scheme:light;
+  --bg:#eceef6; --sunk:#dfe2ee; --surf:#e4e7f2; --surf2:#e9ebf5;
+  --surf3:#dde0ee; --surf4:#fff; --ctl:#ccd1e2; --ctl2:#d3d7e6;
+  --border:#c1c6dc; --border2:#b4b9d0;
+  --text:#1b1d2b; --text2:#262938; --text3:#2f3245; --text4:#2a2d3d;
+  --muted:#5c6078; --muted2:#585c74; --muted3:#5c6078; --muted4:#3c3f54; --muted5:#6b6f87;
+  /* info-fg is the focus ring and some labels: the dark theme's #5dade2 was
+     2.1 : 1 on these light panels, too faint to find keyboard focus by. */
+  --info-bg:#dbe7f5; --info-fg:#21689f; --ok-bg:#d9f0e3; --sky:#2b6ca3; --gold:#7d5600;
+  --rec-fg:#a3251a; --ok-fg:#1c6b41;
+  --dot:#a9aec6; --rest-btn:#8d93ad;
+  --ch-bg-l:87%; --ch-7-l:81%; --ch-bd-l:52%; --ch-fg-l:30%;
+}
+
+/* Honour the OS "reduce motion" setting. The record button's pulse is the
+   one animation that carries meaning, so it also gets a static treatment
+   below rather than relying on movement alone. */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
+}
+
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+/* Nothing showed keyboard focus before, which made the app unusable without a
+   pointer even though it has full keyboard note entry. */
+:focus-visible{ outline:2.5px solid var(--info-fg); outline-offset:2px; }
+html,body { height:100%; overflow:hidden; }
+body { font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--text); display:flex; flex-direction:column; height:100dvh;
+       padding-left:env(safe-area-inset-left,0px); padding-right:env(safe-area-inset-right,0px); }
+
+/* The staff is the point of the app, so it gets a guaranteed floor rather
+   than being the only flexible box in a stack of unshrinkable ones. */
+#score-wrap { position:relative; flex:1 1 auto; min-height:38vh; background:var(--paper); overflow:auto; -webkit-overflow-scrolling:touch; padding:8px; cursor:pointer; touch-action:pan-x pan-y; }
+
+/* Frozen clef + key signature. Once you scroll right the real ones leave the
+   screen, and a staff with no clef tells you nothing about what pitch a
+   notehead is — so this redraws them pinned to the left edge, the way every
+   desktop notation editor does. Positioned in JS on scroll (see
+   syncClefGutter); it only appears once you've actually scrolled off them. */
+#clef-gutter { position:absolute; top:0; left:0; display:none; overflow:hidden; pointer-events:none; background:var(--paper); box-shadow:7px 0 9px -5px rgba(0,0,0,.28); }
+
+/* Everything between the toolbar and the note grid. This wrapper is what
+   makes the layout survive a short screen: previously #tab-bar, .panel and
+   #chord-palette were each flex-shrink:0, so their combined height simply
+   overflowed the viewport — on a 390px-tall landscape phone the stack came
+   to 439px, the staff was squeezed to 16px, and the note buttons ended up
+   65px below the fold with no way to reach them (body is overflow:hidden).
+   Letting this one box scroll means the stack can never push anything off
+   screen again. */
+#control-rail { display:flex; flex-direction:column; flex:0 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+#quick-edit-bar{display:none;align-items:center;gap:4px;padding:5px 7px;background:var(--info-bg);border-top:1.5px solid var(--info);border-bottom:1.5px solid var(--info);flex-shrink:0;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+#qe-label{font-size:11px;font-weight:700;color:var(--info-fg);flex-shrink:0;margin-right:2px;white-space:nowrap;}
+.qe-sep{width:1px;align-self:stretch;background:var(--info);opacity:.45;flex-shrink:0;margin:2px 3px;}
+#qe-del{color:var(--danger);border-color:var(--danger);}
+#qe-rest{color:var(--warn);border-color:var(--warn);font-size:11px;}
+
+/* One horizontally-scrolling row rather than a wrapping block. At 44px per
+   target, ~14 controls can never fit across a phone, and wrapping cost three
+   rows (~250px of a 667px screen) — vertical space the staff needs more. */
+#toolbar { display:flex; gap:4px; padding:calc(5px + env(safe-area-inset-top,0px)) 7px 5px; background:var(--surf3); flex-shrink:0; align-items:center; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+/* 44x44 is the smallest reliably tappable target on a touch screen. These
+   used to be flex:1 with max-width:60px, which on a 375px-wide phone
+   collapsed them to 18px across — narrower than the glyph inside them. */
+.tb { flex:0 0 auto; padding:8px 4px; border:none; border-radius:7px; font-size:14px; font-weight:700; cursor:pointer; min-width:44px; min-height:44px; touch-action:manipulation; }
+.tb:active{opacity:.75;}
+.tb:disabled{opacity:.3;cursor:default;}
+.play{background:var(--green);color:#fff;} .stop{background:var(--danger);color:#fff;}
+.undo{background:var(--warn);color:#fff;} .clear{background:var(--violet);color:#fff;}
+.rec{background:var(--rec);color:#fff;}
+/* The brighter fill and ring are what mark "armed" when the OS asks for
+   reduced motion — the pulse alone would leave recording and idle identical,
+   since both are already red. */
+.rec.recording{background:#ff5140;box-shadow:0 0 0 3px rgba(255,81,64,.45);animation:recPulse 1s ease-in-out infinite;}
+@keyframes recPulse{0%,100%{opacity:1;}50%{opacity:.45;}}
+#bpm-wrap{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--muted);margin-left:4px;}
+#bpm-inp{width:46px;background:var(--ctl);border:none;border-radius:5px;color:var(--text2);padding:4px 5px;font-size:14px;}
+.pill{font-size:12px;font-weight:700;padding:5px 10px;border-radius:10px;background:var(--ctl);color:var(--text2);cursor:pointer;flex-shrink:0;white-space:nowrap;}
+#proj-pill{color:var(--sky);max-width:78px;overflow:hidden;text-overflow:ellipsis;}
+#audition-pill{color:var(--muted3);}
+#audition-pill.on{background:var(--ok);color:#fff;}
+#midi-pill{color:var(--muted3);}
+#midi-pill.on{background:var(--ok);color:#fff;}
+#save-warn{background:var(--danger);color:#fff;}
+
+#tab-bar{display:flex;background:var(--surf);border-top:1px solid var(--border);flex-shrink:0;}
+.tab-btn{flex:1;padding:11px 1px;border:none;background:transparent;color:var(--muted3);font-size:11.5px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;text-transform:uppercase;letter-spacing:.5px;}
+.tab-btn.on{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* Collapsed controls (landscape / more staff room): hide the tall control
+   stack. The rail wraps the tab bar, every panel and the chord palette, so
+   hiding it covers all three. */
+.controls-collapsed #control-rail { display:none !important; }
+
+/* ── Landscape: side-by-side instead of one tall column ──────────────────
+   In landscape the scarce axis is height (~390px) and the plentiful one is
+   width (~844px), so stacking staff-above-controls is exactly backwards.
+   The staff takes the left, the control stack becomes a scrolling rail on
+   the right, and the two things you reach for constantly — transport and
+   the note buttons — stay pinned full-width at top and bottom. */
+@media (orientation:landscape) and (max-height:600px){
+  body{
+    display:grid;
+    /* Wide enough for the densest panel, never so wide it starves the staff
+       on a small landscape phone (667px). */
+    grid-template-columns:1fr clamp(260px,36%,330px);
+    grid-template-rows:auto auto 1fr auto;
+    grid-template-areas:"tbar tbar" "qedit qedit" "score rail" "ngrid ngrid";
+  }
+  #toolbar{ grid-area:tbar; }
+  /* Five labels have to share the rail's width — the portrait letter-spacing
+     is what pushes "SONGS" off the end. */
+  .tab-btn{ font-size:9.5px; letter-spacing:0; padding:11px 1px; }
+  #quick-edit-bar{ grid-area:qedit; }
+  #score-wrap{ grid-area:score; min-height:0; }
+  #control-rail{ grid-area:rail; border-left:1px solid var(--border); }
+  #note-grid{ grid-area:ngrid; }
+  /* Collapsing gives the staff the full width, and the grid must reclaim
+     the rail's column or the staff would keep a dead gutter beside it. */
+  body.controls-collapsed{ grid-template-columns:1fr 0; }
+  /* The rail is narrow — let the denser grids inside it reflow rather than
+     overflow horizontally. */
+  #diatonic-grid{ grid-template-columns:repeat(4,1fr); }
+  .dyn-grid,.key-major-grid,.key-minor-grid{ grid-template-columns:repeat(4,1fr); }
+}
+
+.panel{display:none;padding:6px 8px;background:var(--surf2);flex-shrink:0;}
+.panel.on{display:block;}
+.row{display:flex;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;}
+.lbl{font-size:12px;color:var(--muted);min-width:32px;flex-shrink:0;}
+.sec{font-size:11px;color:var(--muted2);margin:7px 0 4px;letter-spacing:.5px;text-transform:uppercase;}
+
+.subtab-bar{display:flex;gap:3px;margin-bottom:7px;}
+.subtab-btn{flex:1;padding:9px 2px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg);color:var(--muted4);font-size:12px;font-weight:700;cursor:pointer;touch-action:manipulation;}
+.subtab-btn.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.subpanel{display:none;}
+.subpanel.on{display:block;}
+
+.chip{padding:6px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text3);font-size:15px;cursor:pointer;min-height:34px;min-width:34px;display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation;line-height:1;user-select:none;}
+.chip:active{opacity:.7;}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.chip.on2{background:var(--info);border-color:var(--info);color:#fff;}
+.chip.on3{background:var(--ok);border-color:var(--ok);color:#fff;}
+.chip svg{width:20px;height:24px;}
+
+/* Edit panel for selected note */
+
+/* Parts panel */
+#parts-list{display:flex;flex-direction:column;gap:4px;max-height:min(46vh,340px);overflow-y:auto;margin-bottom:5px;}
+.prow{display:flex;align-items:center;gap:5px;background:var(--bg);border-radius:7px;padding:5px 7px;border:1.5px solid var(--border);cursor:pointer;}
+.prow.ap{border-color:var(--info);background:var(--info-bg);}
+.pdot{width:7px;height:7px;border-radius:50%;background:var(--dot);flex-shrink:0;}
+.prow.ap .pdot{background:var(--info);}
+.pname{font-size:12px;font-weight:700;color:var(--text3);flex:0 0 auto;}
+.pinst{font-size:10px;color:var(--muted3);flex:1;}
+.pdel{background:none;border:none;color:var(--danger);font-size:13px;cursor:pointer;padding:0 3px;}
+/* Mute / solo, small enough to sit in the part row without crowding the name. */
+/* Visible to a screen reader, not to the eye. Deliberately not display:none,
+   which would remove it from the accessibility tree too. */
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;}
+.sr-only:focus-within{position:fixed;left:8px;top:8px;width:min(92vw,560px);height:auto;margin:0;
+  clip:auto;clip-path:none;white-space:normal;padding:12px 14px;background:var(--surf4);color:var(--text);
+  border:2px solid var(--accent);border-radius:10px;z-index:60;max-height:70vh;overflow:auto;font-size:13px;}
+/* Per-part fader. Sits on its own line under the row so the name still has
+   room on a phone, and dims when the part is muted. */
+.pvol{display:flex;align-items:center;gap:7px;padding:1px 6px 4px 10px;}
+.pvol.off{opacity:.45;}
+.pvol-icon{font-size:11px;flex:0 0 auto;}
+.pvol-val{font-size:10px;color:var(--muted4);min-width:34px;text-align:right;font-variant-numeric:tabular-nums;}
+.pvol-slider{flex:1;min-width:0;height:22px;accent-color:var(--accent);background:transparent;touch-action:pan-y;}
+.pmix{background:var(--bg);border:1.5px solid var(--border);color:var(--muted4);font-size:10px;font-weight:800;
+  border-radius:5px;min-width:20px;height:20px;line-height:1;cursor:pointer;padding:0 4px;touch-action:manipulation;}
+.pmix.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+/* The playhead sweeps inside #score-div, so it scrolls with the music. */
+#score-playhead{position:absolute;left:0;top:0;width:2px;background:var(--accent);opacity:.75;
+  pointer-events:none;display:none;border-radius:2px;will-change:transform;}
+.cat-grid{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:4px;}
+#inst-grid{display:flex;gap:3px;flex-wrap:wrap;min-height:0;margin-bottom:4px;}
+
+/* Dyn */
+.dyn-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin-bottom:5px;}
+.dyn-btn{padding:7px 2px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text2);font-size:13px;font-style:italic;font-weight:700;cursor:pointer;min-height:34px;touch-action:manipulation;}
+.dyn-btn:active{opacity:.7;}
+.dyn-btn.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.hp-row{display:flex;gap:5px;align-items:center;margin-bottom:3px;}
+#hp-status{font-size:9px;color:var(--ok);min-height:11px;}
+
+/* Art */
+.art-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;}
+.art-btn{padding:7px 2px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text2);font-size:18px;cursor:pointer;min-height:40px;touch-action:manipulation;}
+.art-btn:active{opacity:.7;}
+.art-btn.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* Tempo */
+.tempo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:4px;}
+.tempo-btn{padding:7px 2px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text2);font-size:11px;font-style:italic;cursor:pointer;min-height:34px;touch-action:manipulation;}
+.tempo-btn:active{opacity:.7;}
+.tempo-btn.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* Score setup */
+.key-major-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin-bottom:3px;}
+.key-minor-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin-bottom:5px;}
+.key-btn{padding:6px 2px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text2);font-size:13px;cursor:pointer;min-height:34px;touch-action:manipulation;text-align:center;}
+.key-btn:active{opacity:.7;}
+.key-btn.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;}
+.time-btn{padding:7px 2px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text2);font-size:14px;cursor:pointer;min-height:34px;touch-action:manipulation;text-align:center;}
+.time-btn.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* Files / projects */
+#proj-list{display:flex;flex-direction:column;gap:4px;max-height:150px;overflow-y:auto;}
+
+/* Brand wordmark — shown on the Songs tab rather than the always-visible
+   toolbar, so it never competes with the score for space on a small screen. */
+#brand{text-align:center;padding:6px 0 12px;}
+#brand-mark{font-size:26px;font-weight:800;letter-spacing:.5px;background:linear-gradient(90deg,var(--green),var(--gold),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent;}
+#brand-tag{font-size:10px;color:var(--muted2);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+
+/* Diatonic chord palette — always visible */
+#chord-palette{flex-shrink:0;background:var(--sunk);padding:4px 6px 3px;border-top:1px solid var(--border);}
+#chord-palette-top{display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+#chord-palette-label{font-size:11px;color:var(--muted2);letter-spacing:.5px;text-transform:uppercase;flex:1;}
+#diatonic-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.dchord-btn{border:1.5px solid var(--border2);border-radius:8px;cursor:pointer;min-height:44px;text-align:center;touch-action:manipulation;display:flex;flex-direction:column;overflow:hidden;user-select:none;}
+.dchord-btn:active{opacity:.75;}
+.dchord-7{padding:3px 2px;font-size:10px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0;letter-spacing:.3px;}
+.dchord-triad{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px 1px;}
+.dchord-roman{font-size:10px;line-height:1;opacity:.75;}
+.dchord-root{font-size:15px;font-weight:800;line-height:1.2;}
+/* Tonic / subdominant / dominant are derived from the key hue instead of
+   being three fixed palettes, so the chord grid turns with the circle of
+   fifths as you change key — the colour tells you where you are, not just
+   which function you're looking at. The offsets reproduce the original
+   blue/gold/red at C. */
+.dc-tonic  {background:hsl(var(--h-tonic) 70% var(--ch-bg-l));border-color:hsl(var(--h-tonic) 64% var(--ch-bd-l));color:hsl(var(--h-tonic) 62% var(--ch-fg-l));}
+.dc-tonic .dchord-7{background:hsl(var(--h-tonic) 74% var(--ch-7-l));}
+.dc-subdom {background:hsl(var(--h-subdom) 100% var(--ch-bg-l));border-color:hsl(var(--h-subdom) 85% var(--ch-bd-l));color:hsl(var(--h-subdom) 84% var(--ch-fg-l));}
+.dc-subdom .dchord-7{background:hsl(var(--h-subdom) 100% var(--ch-7-l));}
+.dc-dom    {background:hsl(var(--h-dom) 63% var(--ch-bg-l));border-color:hsl(var(--h-dom) 64% var(--ch-bd-l));color:hsl(var(--h-dom) 79% var(--ch-fg-l));}
+.dc-dom .dchord-7{background:hsl(var(--h-dom) 70% var(--ch-7-l));}
+
+/* Note grid */
+#note-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding:5px 7px calc(5px + env(safe-area-inset-bottom,0px));background:var(--surf);flex-shrink:0;border-top:1px solid var(--border);}
+.nbtn{padding:9px 2px;border:none;border-radius:9px;font-size:17px;font-weight:800;cursor:pointer;min-height:42px;color:#fff;touch-action:manipulation;user-select:none;display:flex;align-items:center;justify-content:center;}
+.nbtn:active{transform:scale(.91);}
+.np{background:var(--accent);} .nr{background:var(--rest-btn);}
+.nr svg{width:22px;height:26px;}
+
+.hint{font-size:11.5px;line-height:1.35;color:var(--muted2);margin-top:4px;}
+
+/* Zoom readout — appears while pinching, fades out on its own. */
+#zoom-badge{display:none;position:fixed;z-index:600;background:rgba(13,31,53,.88);color:#fff;font-size:12px;font-weight:700;padding:4px 9px;border-radius:9px;pointer-events:none;}
+
+/* Record sheet — the MIDI capture settings used to sit permanently at the
+   top of the Notes panel, taking 130px of its 207px even on a phone with no
+   MIDI keyboard attached. It's a once-per-take setup step, so it belongs
+   behind the ⏺ button rather than in front of the notes. */
+#rec-sheet{display:none;position:fixed;inset:0;z-index:900;background:rgba(5,6,12,.82);align-items:center;justify-content:center;padding:14px;}
+#rec-sheet.on{display:flex;}
+#rec-sheet-card{background:var(--surf4);border:2px solid var(--rec);border-radius:14px;padding:15px 17px;width:100%;max-width:400px;max-height:100%;overflow-y:auto;box-shadow:0 10px 34px rgba(0,0,0,.55);}
+#rec-sheet-title{font-size:16px;font-weight:800;color:#fff;margin-bottom:9px;}
+#rec-sheet .hint{margin-bottom:8px;}
+#rec-status{font-size:12px;color:var(--rec-fg);font-weight:700;min-height:16px;margin-bottom:4px;}
+#rec-sheet-btns{display:flex;gap:7px;align-items:center;margin-top:10px;}
+#rec-start-btn{flex:1;background:var(--rec);border-color:var(--rec);color:#fff;font-weight:700;}
+#rec-start-btn:disabled{opacity:.4;}
+
+/* App dialogs and toasts.
+   Native alert/confirm/prompt render as browser chrome inside an installed app
+   that otherwise has none, and iOS can suppress prompt() outright. These follow
+   the record sheet's shape so every modal in the app looks like the same app. */
+#app-sheet{display:none;position:fixed;inset:0;z-index:950;background:rgba(5,6,12,.82);align-items:center;justify-content:center;padding:14px;}
+#app-sheet.on{display:flex;}
+#app-sheet-card{background:var(--surf4);border:2px solid var(--border);border-radius:14px;padding:15px 17px;width:100%;max-width:400px;max-height:100%;overflow-y:auto;box-shadow:0 10px 34px rgba(0,0,0,.55);}
+#app-sheet-card.danger{border-color:var(--danger);}
+#app-sheet-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:7px;}
+#app-sheet-msg{font-size:13px;line-height:1.5;color:var(--text3);white-space:pre-wrap;margin-bottom:10px;}
+#app-sheet-input{width:100%;padding:9px 10px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;
+  color:var(--text2);font-size:16px;margin-bottom:10px;}
+#app-sheet-btns{display:flex;gap:7px;justify-content:flex-end;}
+#app-sheet-btns .chip{min-height:38px;padding:8px 14px;font-size:13px;}
+#app-sheet-btns .chip.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+#app-sheet-btns .chip.danger{background:var(--danger);border-color:var(--danger);color:#fff;font-weight:700;}
+
+/* Transient notices — "select a note first" is a nudge, not something worth
+   a modal and a tap to dismiss. */
+#toast-host{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));
+  z-index:940;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:min(92vw,420px);}
+.toast{background:var(--surf4);border:1.5px solid var(--border);border-radius:10px;padding:9px 13px;
+  font-size:13px;line-height:1.4;color:var(--text);box-shadow:0 6px 22px rgba(0,0,0,.45);
+  animation:toast-in .18s ease-out;max-width:100%;}
+.toast.warn{border-color:var(--warn);}
+.toast.err{border-color:var(--danger);}
+@keyframes toast-in{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* Guided tour overlay */
+#tour-overlay{position:fixed;inset:0;z-index:99999;}
+#tour-hole{position:absolute;border-radius:9px;box-shadow:0 0 0 9999px rgba(0,0,0,.74);transition:left .25s,top .25s,width .25s,height .25s;pointer-events:none;}
+#tour-card{position:fixed;z-index:100000;background:var(--surf4);border:2px solid var(--accent);border-radius:14px;padding:15px 17px;box-shadow:0 10px 34px rgba(0,0,0,.55);overflow-y:auto;}
+#tour-title{font-size:17px;font-weight:800;color:#fff;margin-bottom:6px;}
+#tour-text{font-size:14px;line-height:1.45;color:var(--text4);margin-bottom:11px;}
+#tour-dots{text-align:center;margin-bottom:11px;line-height:1;}
+#tour-btns{display:flex;align-items:center;gap:8px;position:sticky;bottom:0;background:var(--surf4);padding-top:8px;margin-top:4px;}
+#tour-btns button{padding:9px 15px;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;touch-action:manipulation;}
+#tour-skip{background:var(--ctl2);color:var(--muted5);}
+#tour-back{background:var(--ctl2);color:var(--text4);}
+#tour-next{background:var(--accent);color:#fff;}
+</style>
+</head>
+<body>
+
+<div id="score-wrap" role="region" aria-label="Music score"><div id="score-div" style="position:relative;"></div><div id="clef-gutter"></div></div>
+<!-- The staff is an SVG with no text in it. These two carry the same music in
+     words: the live region announces the note under the cursor as it moves,
+     and the outline is the active part as a readable list of bars. Both are
+     off-screen rather than display:none, which would take them out of the
+     accessibility tree along with everything else. -->
+<div id="score-live" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+<div id="score-outline" class="sr-only" role="region" aria-label="The active part in words" tabindex="0"></div>
+<div id="zoom-badge" aria-live="polite"></div>
+
+<!-- Quick note edit — shown only when a note is selected on the staff, so
+     changing its length/pitch never requires leaving the score to dig into
+     the Notes tab. -->
+<div id="quick-edit-bar">
+  <span id="qe-label"></span>
+  <button class="chip" id="qe-d-w"   onclick="setDur('w')"></button>
+  <button class="chip" id="qe-d-h"   onclick="setDur('h')"></button>
+  <button class="chip" id="qe-d-q"   onclick="setDur('q')"></button>
+  <button class="chip" id="qe-d-8"   onclick="setDur('8')"></button>
+  <button class="chip" id="qe-d-16"  onclick="setDur('16')"></button>
+  <button class="chip" id="qe-d-32"  onclick="setDur('32')"></button>
+  <button class="chip" id="qe-d-dot" onclick="toggleDot()" style="font-size:16px">·</button>
+  <button class="chip qe-pitch-btn" onclick="moveSelNote(-1)"  title="Down semitone">↓½</button>
+  <button class="chip qe-pitch-btn" onclick="moveSelNote(1)"   title="Up semitone">↑½</button>
+  <button class="chip qe-pitch-btn" onclick="moveSelNote(-12)" title="Down octave" style="font-size:10px">↓8va</button>
+  <button class="chip qe-pitch-btn" onclick="moveSelNote(12)"  title="Up octave" style="font-size:10px">↑8va</button>
+  <button class="chip qe-pitch-btn" onclick="setSelAcc('#')">♯</button>
+  <button class="chip qe-pitch-btn" onclick="setSelAcc('b')">♭</button>
+  <button class="chip qe-pitch-btn" onclick="setSelAcc('n')">♮</button>
+  <button class="chip qe-pitch-btn" onclick="moveSelNote(-2)" title="Down a whole step">↓W</button>
+  <button class="chip qe-pitch-btn" onclick="moveSelNote(2)"  title="Up a whole step">↑W</button>
+  <span class="qe-sep"></span>
+  <button class="chip" id="qe-rest" onclick="makeRest()" title="Turn this note into a rest, keeping its timing">⇢Rest</button>
+  <button class="chip" id="qe-del"  onclick="removeSelected()" title="Delete this note">🗑</button>
+</div>
+
+<div id="toolbar">
+  <button class="tb play"  onclick="playScore()">▶</button>
+  <button class="tb stop"  onclick="stopScore()">■</button>
+  <button class="tb rec"   id="rec-btn" onclick="toggleRecord()" title="Record from a MIDI keyboard (2-bar count-in + metronome)">⏺</button>
+  <button class="tb" id="loop-btn" onclick="toggleLoop()" style="background:var(--ctl);color:var(--sky);" title="Loop playback, for drilling a passage" aria-label="Loop playback">⟳</button>
+  <button class="tb undo"  id="undo-btn" onclick="undo()" title="Undo (Ctrl/Cmd+Z)">↶</button>
+  <button class="tb undo"  id="redo-btn" onclick="redo()" title="Redo (Ctrl/Cmd+Shift+Z)">↷</button>
+  <button class="tb clear" onclick="clearAll()" title="Clear all notes">✕</button>
+  <button class="tb" id="copy-toggle-btn" onclick="toggleCopyMode()" style="background:var(--ctl);color:var(--sky);">✂</button>
+  <button class="tb" id="help-btn" onclick="startTour()" style="background:var(--ctl);color:var(--sky);">?</button>
+  <button class="tb" id="collapse-btn" onclick="toggleControls()" style="background:var(--ctl);color:var(--sky);" title="Hide/show controls">▼</button>
+  <button class="tb" id="zoom-out" onclick="stepZoom(-1)" style="background:var(--ctl);color:var(--sky);" title="Make the staff smaller" aria-label="Zoom the staff out">−</button>
+  <button class="tb" id="zoom-in"  onclick="stepZoom(1)"  style="background:var(--ctl);color:var(--sky);" title="Make the staff bigger" aria-label="Zoom the staff in">+</button>
+  <div id="bpm-wrap"><span>BPM</span><input type="number" id="bpm-inp" value="80" min="20" max="320"></div>
+  <span class="pill" id="proj-pill" onclick="switchTab('proj')">Song</span>
+  <span class="pill" id="part-pill" onclick="switchTab('parts')" style="color:var(--gold);max-width:110px;overflow:hidden;text-overflow:ellipsis;" title="Instrument you're writing to — tap to switch">Treble · Piano</span>
+  <span class="pill" id="key-pill" onclick="switchTab('score')">C</span>
+  <span class="pill" id="pitch-pill" onclick="togglePitchView()" title="Written pitch shows each part as its player reads it; concert pitch shows the score as it sounds">Written</span>
+  <span class="pill on" id="audition-pill" onclick="toggleAudition()" title="Hear each note as you enter or edit it">🔊 Audition</span>
+  <span class="pill" id="midi-pill">No MIDI</span>
+  <span class="pill" id="voice-pill" aria-live="polite" style="display:none"></span>
+  <span class="pill" id="save-warn" onclick="switchTab('proj')" role="alert" title="Autosave failed — tap to open Songs and save a copy to your device" style="display:none">⚠ Not saved</span>
+</div>
+
+<!-- Scrolling container for the whole control stack — see #control-rail in the
+     stylesheet for why this wrapper exists. -->
+<div id="control-rail">
+
+<div id="tab-bar">
+  <button class="tab-btn on"  onclick="switchTab('notes')">Notes</button>
+  <button class="tab-btn"     onclick="switchTab('parts')">Instruments</button>
+  <button class="tab-btn"     onclick="switchTab('markings')">Markings</button>
+  <button class="tab-btn"     onclick="switchTab('score')">Key/Time</button>
+  <button class="tab-btn"     onclick="switchTab('proj')">Songs</button>
+</div>
+
+<!-- Notes panel -->
+<div id="panel-notes" class="panel on">
+  <div id="copy-section" style="display:none;background:var(--ok-bg);border-radius:8px;padding:5px 7px;margin-bottom:4px;border:1.5px solid var(--ok);">
+    <div class="row">
+      <span id="copy-status" aria-live="polite" style="font-size:11px;color:var(--ok-fg);font-weight:700;flex:1"></span>
+      <button class="chip on3" id="copy-btn" onclick="copySelectedRange()" style="font-size:10px;display:none">✓ Copy</button>
+      <button class="chip" onclick="cancelCopyRange()" style="font-size:10px">✗ Cancel</button>
+    </div>
+  </div>
+  <div id="paste-section" style="display:none;background:var(--info-bg);border-radius:8px;padding:5px 7px;margin-bottom:4px;border:1.5px solid var(--info);">
+    <div class="row">
+      <span id="paste-status" aria-live="polite" style="font-size:11px;color:var(--info-fg);font-weight:700;flex:1"></span>
+      <button class="chip on2" onclick="pasteClipboard()" style="font-size:10px">📋 Paste</button>
+      <button class="chip" onclick="clearClipboard()" style="font-size:10px">✗ Clear</button>
+    </div>
+  </div>
+  <div class="row" id="dur-row">
+    <span class="lbl">Dur</span>
+    <button class="chip"    id="d-w"   onclick="setDur('w')"></button>
+    <button class="chip"    id="d-h"   onclick="setDur('h')"></button>
+    <button class="chip on" id="d-q"   onclick="setDur('q')"></button>
+    <button class="chip"    id="d-8"   onclick="setDur('8')"></button>
+    <button class="chip"    id="d-16"  onclick="setDur('16')"></button>
+    <button class="chip"    id="d-32"  onclick="setDur('32')"></button>
+    <button class="chip"    id="d-dot" onclick="toggleDot()" style="font-size:18px">·</button>
+    <span class="lbl" style="margin-left:2px">Tuplet</span>
+    <button class="chip" onclick="changeTupletN(-1)" style="font-size:13px;padding:6px 8px" title="Fewer notes per tuplet">−</button>
+    <button class="chip" id="d-tuplet" onclick="toggleTuplet()" style="font-size:13px;font-weight:800;min-width:26px" title="Toggle tuplet (duplet, triplet, quintuplet, ...)">3</button>
+    <button class="chip" onclick="changeTupletN(1)" style="font-size:13px;padding:6px 8px" title="More notes per tuplet">+</button>
+    <span class="lbl" style="margin-left:4px">Nudge</span>
+    <button class="chip" onclick="changeOct(-1)">−</button>
+    <span id="oct-val" style="font-size:15px;font-weight:700;color:var(--text);min-width:20px;text-align:center">±0</span>
+    <button class="chip" onclick="changeOct(1)">+</button>
+  </div>
+  <div class="row" id="acc-row">
+    <span class="lbl">Acc</span>
+    <button class="chip on" id="a-key" onclick="setAcc('key')" style="font-size:10px">Key</button>
+    <button class="chip"    id="a-n"  onclick="setAcc('n')">♮</button>
+    <button class="chip"    id="a-s"  onclick="setAcc('#')">♯</button>
+    <button class="chip"    id="a-f"  onclick="setAcc('b')">♭</button>
+    <button class="chip"    id="a-ss" onclick="setAcc('##')" style="font-size:10px">𝄪</button>
+    <button class="chip"    id="a-ff" onclick="setAcc('bb')" style="font-size:10px">𝄫</button>
+  </div>
+  <div class="hint">Tuplets: pick a count with −/+, tap the number to arm it, then enter that many notes.</div>
+</div>
+
+<!-- Parts panel -->
+<div id="panel-parts" class="panel">
+  <div style="font-size:9px;color:var(--muted2);margin-bottom:3px">TAP TO SELECT ACTIVE PART FOR NOTE ENTRY</div>
+  <div id="parts-list"></div>
+  <div class="sec">Add new part</div>
+  <div class="cat-grid" id="cat-grid"></div>
+  <div id="inst-grid"></div>
+  <button class="chip on2" id="btn-add-confirm" onclick="confirmAddPart()" style="display:none">+ Add This Part</button>
+</div>
+
+<!-- Markings panel (Lyrics / Dynamics / Articulation / Tempo, grouped) -->
+<div id="panel-markings" class="panel">
+  <div class="subtab-bar">
+    <button class="subtab-btn on" onclick="switchSubTab('lyrics')">Lyrics</button>
+    <button class="subtab-btn"    onclick="switchSubTab('dyn')">Dynamics</button>
+    <button class="subtab-btn"    onclick="switchSubTab('art')">Articulation</button>
+    <button class="subtab-btn"    onclick="switchSubTab('tempo')">Tempo</button>
+    <button class="subtab-btn"    onclick="switchSubTab('rud')">Rudiments</button>
+  </div>
+  <div class="hint" style="margin-bottom:6px">If a note is selected on the staff, these apply to that note. Otherwise they'll attach to the next note you enter.</div>
+
+  <div id="sub-lyrics" class="subpanel on">
+    <div class="row"><span style="font-size:10px;color:var(--muted3)">Syllable:</span></div>
+    <input type="text" id="lyric-inp" style="width:100%;padding:7px 9px;background:var(--bg);border:1.5px solid var(--border);border-radius:7px;color:var(--text2);font-size:14px;" placeholder="Type syllable…" maxlength="24">
+    <div class="hint"><span onclick="clearPending()" style="color:var(--accent);cursor:pointer">Clear all pending</span></div>
+  </div>
+
+  <div id="sub-dyn" class="subpanel">
+    <div class="dyn-grid">
+      <button class="dyn-btn" id="dyn-ppp" onclick="setDyn('ppp')">ppp</button>
+      <button class="dyn-btn" id="dyn-pp"  onclick="setDyn('pp')">pp</button>
+      <button class="dyn-btn" id="dyn-p"   onclick="setDyn('p')">p</button>
+      <button class="dyn-btn" id="dyn-mp"  onclick="setDyn('mp')">mp</button>
+      <button class="dyn-btn" id="dyn-mf"  onclick="setDyn('mf')">mf</button>
+      <button class="dyn-btn" id="dyn-f"   onclick="setDyn('f')">f</button>
+      <button class="dyn-btn" id="dyn-ff"  onclick="setDyn('ff')">ff</button>
+      <button class="dyn-btn" id="dyn-fff" onclick="setDyn('fff')">fff</button>
+      <button class="dyn-btn" id="dyn-sfz" onclick="setDyn('sfz')">sfz</button>
+      <button class="dyn-btn" id="dyn-sfp" onclick="setDyn('sfp')">sfp</button>
+      <button class="dyn-btn" id="dyn-fz"  onclick="setDyn('fz')">fz</button>
+      <button class="dyn-btn" id="dyn-0"   onclick="setDyn(null)" style="font-style:normal;font-size:9px">none</button>
+    </div>
+    <div class="sec">Hairpins</div>
+    <div class="hp-row">
+      <span style="font-size:10px;color:var(--muted4);min-width:52px">Cresc &lt;</span>
+      <button class="chip on3" onclick="startHairpin('cresc')" style="font-size:10px">▸ Start</button>
+      <button class="chip"     onclick="endHairpin('cresc')"  style="font-size:10px">▪ End</button>
+    </div>
+    <div class="hp-row">
+      <span style="font-size:10px;color:var(--muted4);min-width:52px">Decresc &gt;</span>
+      <button class="chip on3" onclick="startHairpin('decresc')" style="font-size:10px">▸ Start</button>
+      <button class="chip"     onclick="endHairpin('decresc')"  style="font-size:10px">▪ End</button>
+    </div>
+    <div id="hp-status" aria-live="polite"></div>
+  </div>
+
+  <div id="sub-art" class="subpanel">
+    <div class="art-grid">
+      <button class="art-btn" id="art-0"  onclick="clearArts()"  style="font-size:10px">none</button>
+      <button class="art-btn" id="art-st" onclick="toggleArt('a.')">·</button>
+      <button class="art-btn" id="art-ac" onclick="toggleArt('a>')">></button>
+      <button class="art-btn" id="art-te" onclick="toggleArt('a-')">—</button>
+      <button class="art-btn" id="art-ma" onclick="toggleArt('a^')">^</button>
+      <button class="art-btn" id="art-fe" onclick="toggleArt('ao')">𝄐</button>
+      <button class="art-btn" id="art-tr" onclick="toggleArt('tr')" style="font-size:12px;font-style:italic">tr</button>
+      <button class="art-btn" id="art-pz" onclick="toggleArt('a+')" style="font-size:12px">+</button>
+    </div>
+    <div class="hint" style="margin-top:4px">Tap to add or remove — a note can have more than one (e.g. accent + staccato).</div>
+  </div>
+
+  <div id="sub-tempo" class="subpanel">
+    <div class="sec">Tempo words</div>
+    <div class="tempo-grid">
+      <button class="tempo-btn" id="tw-Grave"       onclick="setTempo('Grave')">Grave</button>
+      <button class="tempo-btn" id="tw-Largo"       onclick="setTempo('Largo')">Largo</button>
+      <button class="tempo-btn" id="tw-Adagio"      onclick="setTempo('Adagio')">Adagio</button>
+      <button class="tempo-btn" id="tw-Andante"     onclick="setTempo('Andante')">Andante</button>
+      <button class="tempo-btn" id="tw-Moderato"    onclick="setTempo('Moderato')">Moderato</button>
+      <button class="tempo-btn" id="tw-Allegretto"  onclick="setTempo('Allegretto')" style="font-size:8px">Allegretto</button>
+      <button class="tempo-btn" id="tw-Allegro"     onclick="setTempo('Allegro')">Allegro</button>
+      <button class="tempo-btn" id="tw-Vivace"      onclick="setTempo('Vivace')">Vivace</button>
+      <button class="tempo-btn" id="tw-Presto"      onclick="setTempo('Presto')">Presto</button>
+      <button class="tempo-btn" id="tw-Prestissimo" onclick="setTempo('Prestissimo')" style="font-size:7px">Prestissimo</button>
+      <button class="tempo-btn" id="tw-none"        onclick="setTempo(null)" style="font-style:normal;font-size:9px">none</button>
+    </div>
+    <div class="sec">Tempo changes</div>
+    <div class="tempo-grid">
+      <button class="tempo-btn" id="tc-accel."      onclick="setTempo('accel.')">accel.</button>
+      <button class="tempo-btn" id="tc-poco accel." onclick="setTempo('poco accel.')" style="font-size:7px">poco accel.</button>
+      <button class="tempo-btn" id="tc-rit."        onclick="setTempo('rit.')">rit.</button>
+      <button class="tempo-btn" id="tc-ritard."     onclick="setTempo('ritard.')">ritard.</button>
+      <button class="tempo-btn" id="tc-rall."       onclick="setTempo('rall.')">rall.</button>
+      <button class="tempo-btn" id="tc-a tempo"     onclick="setTempo('a tempo')" style="font-style:normal">a tempo</button>
+    </div>
+  </div>
+
+  <div id="sub-rud" class="subpanel">
+    <div class="sec">Rolls</div>
+    <div class="art-grid">
+      <button class="art-btn" id="rud-0"     onclick="setRud(null)"      style="font-size:10px">none</button>
+      <button class="art-btn" id="rud-r2"    onclick="setRud('trem1')">/ x2</button>
+      <button class="art-btn" id="rud-r4"    onclick="setRud('trem2')">// x4</button>
+      <button class="art-btn" id="rud-r8"    onclick="setRud('trem3')">/// x8</button>
+      <button class="art-btn" id="rud-buzz"  onclick="setRud('buzz')"  style="font-size:13px">Z Buzz</button>
+      <button class="art-btn" id="rud-press" onclick="setRud('press')" style="font-size:13px">Press</button>
+    </div>
+    <div class="hint">Each extra slash doubles the roll: a quarter note becomes 2, 4, or 8 fast hits. Buzz and Press also play as a fast multi-bounce sound (Press tighter/faster than Buzz).</div>
+
+    <div class="sec" style="margin-top:8px">Grace notes (flam / drag / ruff)</div>
+    <div class="row">
+      <button class="chip" id="grace-toggle" onclick="toggleGraceMode()" style="font-size:11px">🎵 Add grace notes</button>
+      <button class="chip on" id="grace-8"  onclick="setGraceDur('8')">♪ 8th</button>
+      <button class="chip"    id="grace-16" onclick="setGraceDur('16')">♬ 16th</button>
+    </div>
+    <div id="grace-pending" aria-live="polite" style="font-size:10px;color:var(--accent);min-height:14px;"></div>
+    <div class="hint">Turn this on, tap letters below to queue grace notes (1 tap = flam, 2 = drag, 3 = ruff, or add more), then turn it back off and tap the main note — the queue attaches automatically. <span onclick="clearGraceQueue()" style="color:var(--accent);cursor:pointer">Clear queue</span></div>
+
+    <div class="sec" style="margin-top:8px">Sticking</div>
+    <div class="row">
+      <button class="chip" id="stick-0" onclick="setSticking(null)" style="font-size:10px">none</button>
+      <button class="chip" id="stick-R" onclick="setSticking('R')">R</button>
+      <button class="chip" id="stick-L" onclick="setSticking('L')">L</button>
+    </div>
+  </div>
+</div>
+
+<!-- Score setup panel -->
+<div id="panel-score" class="panel">
+  <div class="row" style="margin-bottom:4px">
+    <button class="chip" id="scope-btn" onclick="toggleChangeScope()" style="font-size:11px">✎ Whole song</button>
+    <button class="chip" onclick="clearChangesHere()" style="font-size:10px">Remove change here</button>
+  </div>
+  <div class="hint">Tap “Whole song” to switch to changing key or metre <em>from the selected bar onwards</em> — that's how you write a modulation or a metre change. Select a note in that bar first.</div>
+  <div id="changes-list" class="row" style="flex-wrap:wrap;gap:4px;margin:3px 0"></div>
+  <div class="sec">Pickup (anacrusis)</div>
+  <div class="row">
+    <button class="chip" onclick="setPickup(0)" style="font-size:10px">none</button>
+    <button class="chip" onclick="setPickup(0.5)" style="font-size:10px">½</button>
+    <button class="chip" onclick="setPickup(1)" style="font-size:10px">1</button>
+    <button class="chip" onclick="setPickup(1.5)" style="font-size:10px">1½</button>
+    <button class="chip" onclick="setPickup(2)" style="font-size:10px">2</button>
+    <button class="chip" onclick="setPickup(3)" style="font-size:10px">3</button>
+    <span class="lbl" id="pickup-val" style="margin-left:4px">none</span>
+  </div>
+  <div class="hint">Shortens the first bar, for a piece that starts before beat 1.</div>
+  <div class="sec">Key signature — Major</div>
+  <div class="key-major-grid" id="key-major-grid"></div>
+  <div class="sec">Key signature — Minor</div>
+  <div class="key-minor-grid" id="key-minor-grid"></div>
+  <div class="sec">Time signature</div>
+  <div class="time-grid" id="time-grid"></div>
+  <div class="sec">Repeats</div>
+  <div class="row">
+    <button class="chip" onclick="toggleRepeatStart()" style="font-size:11px">‖: Start Repeat Here</button>
+    <button class="chip" onclick="toggleRepeatEnd()" style="font-size:11px">:‖ End Repeat Here</button>
+  </div>
+  <div class="hint">Select a note on the staff first — these mark that note's whole measure. Tap again to remove.</div>
+  <div class="row" style="margin-top:4px">
+    <button class="chip" onclick="addMeasureRepeat(1)" style="font-size:11px">% Repeat Last Measure</button>
+    <button class="chip" onclick="addMeasureRepeat(2)" style="font-size:11px">%% Repeat Last 2</button>
+    <button class="chip" onclick="addMeasureRepeat(4)" style="font-size:11px">%%%% Repeat Last 4</button>
+  </div>
+  <div class="hint">Adds a repeat-previous-measure(s) symbol to the active part, in place of writing it out again. Only works right at the start of a new measure.</div>
+</div>
+
+<!-- Files / projects panel -->
+<div id="panel-proj" class="panel">
+  <div id="brand"><div id="brand-mark">MōdScore</div><div id="brand-tag">Mobile Music Notation</div></div>
+  <div class="row" style="gap:6px">
+    <button class="chip on2" onclick="newProjectPrompt()" style="font-size:11px">+ New Song</button>
+    <button class="chip" id="theme-btn" onclick="toggleTheme()" style="font-size:11px" title="Switch between the dark and light interface">☀ Light mode</button>
+  </div>
+  <div class="sec">Backup — save a song file to your device</div>
+  <div class="row" style="gap:6px">
+    <button class="chip on3" onclick="saveProjectToFile()" style="font-size:11px">⇩ Save to device</button>
+    <button class="chip" onclick="openProjectFromFile()" style="font-size:11px">⇧ Open from device</button>
+  </div>
+  <div class="hint">Your songs also auto-save inside this browser, but saving a file is the safe backup — it survives clearing browser data or switching devices.</div>
+  <div class="sec">Offline</div>
+  <div class="row" style="gap:6px">
+    <button class="chip" id="offline-sounds-btn" onclick="saveSoundsOffline()" style="font-size:11px">⇩ Save sounds for offline</button>
+  </div>
+  <div class="hint">The app itself already works with no signal once you've opened it. The recorded instruments stream in the first time you play them — save them here and playback keeps its real sound offline instead of falling back to the synth.</div>
+  <div class="sec">Import</div>
+  <div class="row" style="gap:6px">
+    <button class="chip" onclick="importFile('midi')" style="font-size:11px">⇧ MIDI (.mid)</button>
+    <button class="chip" onclick="importFile('xml')" style="font-size:11px">⇧ MusicXML</button>
+  </div>
+  <div class="sec">Export current song</div>
+  <div class="row" style="gap:6px">
+    <button class="chip" onclick="exportMIDI()" style="font-size:11px">⇩ MIDI</button>
+    <button class="chip" onclick="exportMusicXML()" style="font-size:11px">⇩ MusicXML</button>
+  </div>
+  <div class="hint">MusicXML opens in MuseScore, Sibelius, Dorico and Finale, keeping the notation itself — barlines, ties, lyrics, dynamics and each part's transposition. MIDI keeps only the performance.</div>
+  <div class="sec">Print / PDF</div>
+  <div class="row" style="gap:6px;flex-wrap:wrap" id="print-row"></div>
+  <div class="sec">Your songs — autosaved</div>
+  <div id="proj-list"></div>
+  <input type="file" id="import-file" style="display:none">
+  <input type="file" id="project-file" accept=".json,.mnote" style="display:none">
+</div>
+
+<!-- Diatonic chord palette — always visible -->
+<div id="chord-palette">
+  <div id="chord-palette-top">
+    <span id="chord-palette-label">Diatonic Chords</span>
+    <button class="chip" id="btn-chord7" onclick="toggleChord7()" style="font-size:10px;padding:2px 7px">7th</button>
+    <button class="chip" id="btn-chord-mode" onclick="toggleChordMode()" style="font-size:10px;padding:2px 7px">♫ Build</button>
+  </div>
+  <div id="diatonic-grid"></div>
+  <div id="pending-row" style="display:none;align-items:center;gap:5px;margin-top:3px;">
+    <span id="pending-display" style="font-size:10px;color:var(--accent);flex:1;min-height:14px;"></span>
+    <button class="chip on3" onclick="commitChord()" style="font-size:10px">✓ Add</button>
+    <button class="chip"     onclick="cancelChord()" style="font-size:10px">✗</button>
+  </div>
+</div>
+
+</div><!-- /#control-rail -->
+
+<!-- Note grid -->
+<div id="note-grid">
+  <button class="nbtn np" onclick="handleScaleBtn(0)">C</button>
+  <button class="nbtn np" onclick="handleScaleBtn(1)">D</button>
+  <button class="nbtn np" onclick="handleScaleBtn(2)">E</button>
+  <button class="nbtn np" onclick="handleScaleBtn(3)">F</button>
+  <button class="nbtn np" onclick="handleScaleBtn(4)">G</button>
+  <button class="nbtn np" onclick="handleScaleBtn(5)">A</button>
+  <button class="nbtn np" onclick="handleScaleBtn(6)">B</button>
+  <button class="nbtn np" id="hit-btn" onclick="enterPitch('B',null,4,null)" style="display:none;grid-column:span 7">Hit</button>
+  <button class="nbtn nr" id="rest-btn" onclick="addRest()"></button>
+</div>
+
+<!-- Ask/tell, in the app's own clothes rather than the browser's. -->
+<div id="app-sheet" role="dialog" aria-modal="true" aria-labelledby="app-sheet-title">
+  <div id="app-sheet-card">
+    <div id="app-sheet-title"></div>
+    <div id="app-sheet-msg"></div>
+    <input type="text" id="app-sheet-input" style="display:none">
+    <div id="app-sheet-btns"></div>
+  </div>
+</div>
+<div id="toast-host" role="status" aria-live="polite"></div>
+
+<!-- MIDI record settings — opened by the ⏺ toolbar button. -->
+<div id="rec-sheet">
+  <div id="rec-sheet-card">
+    <div id="rec-sheet-title">⏺ Record from a MIDI keyboard</div>
+    <div id="rec-no-midi" class="hint" style="color:var(--rec-fg);display:none">No MIDI keyboard detected. Connect one and it'll be picked up automatically — the MIDI pill in the toolbar turns green.</div>
+    <div class="row">
+      <span class="lbl">Grid</span>
+      <button class="chip rec-grid-btn" data-grid="q"   onclick="setRecGrid('q')"   style="font-size:11px">♩</button>
+      <button class="chip rec-grid-btn" data-grid="8"   onclick="setRecGrid('8')"   style="font-size:11px">♪</button>
+      <button class="chip rec-grid-btn on" data-grid="16"  onclick="setRecGrid('16')"  style="font-size:11px">♬</button>
+      <button class="chip rec-grid-btn" data-grid="8t"  onclick="setRecGrid('8t')"  style="font-size:10px">♪3</button>
+      <button class="chip rec-grid-btn" data-grid="16t" onclick="setRecGrid('16t')" style="font-size:10px">♬3</button>
+    </div>
+    <div class="hint">Sets the quantize grid your playing snaps to. Starting gives you 2 bars of metronome count-in, then it records whatever you play until you tap ⏺ again.</div>
+    <div id="rec-status" aria-live="polite"></div>
+    <div id="rec-sheet-btns">
+      <button class="chip" onclick="closeRecSheet()">Cancel</button>
+      <button class="chip" id="rec-start-btn" onclick="startRecordingFromSheet()">● Start</button>
+    </div>
+  </div>
+</div>
+
+<!-- Vendored rather than pulled from a CDN (VexFlow 4.2.2, Tone 14.7.77, both
+     MIT). These were loading from jsdelivr, and when that fetch failed the
+     page rendered as a blank sheet with every button silently dead — no
+     error, nothing. A phone on a patchy connection is exactly the case this
+     app has to survive, and now it works offline too. -->
+<script src="lib/vexflow.js"></script>
+<script src="lib/Tone.js"></script>
+<script>
+// A missing engine used to be invisible; say so instead of rendering nothing.
+if(typeof Vex==='undefined'||typeof Tone==='undefined'){
+  document.body.innerHTML='<div style="padding:28px;font:15px/1.5 -apple-system,BlinkMacSystemFont,sans-serif;color:var(--text)">'
+    +'<h2 style="color:var(--accent);margin-bottom:10px">MōdScore could not start</h2>'
+    +'<p>The notation and audio engines failed to load. If you opened this file directly from disk, serve the folder over HTTP instead — the <code>lib/</code> folder has to load alongside this page.</p>'
+    +'<p style="margin-top:10px"><a href="" onclick="location.reload();return false" style="color:var(--info-fg)">Reload</a></p></div>';
+  throw new Error('MōdScore: VexFlow/Tone failed to load');
+}
+</script>
+<script src="js/core.js"></script>
+<script src="js/panels.js"></script>
+<script src="js/editing.js"></script>
+<script src="js/render.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/io.js"></script>
+<script src="js/boot.js"></script>
+</html>
